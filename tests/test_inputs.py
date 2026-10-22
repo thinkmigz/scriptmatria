@@ -20,7 +20,7 @@ def test_schema_matches_contract():
 def test_example_is_valid_and_target_is_derived():
     req = inputs.parse_request(snapshot())
     assert req.current_count == 22 and req.milestone == 23
-    assert req.decode_id == "MLB-2026-10-21-FIXTURE-PA_FICTIONAL-A"
+    assert req.decode_id == "MLB-2026-10-21-FIXTURE-PA_FICTIONAL-A_HR"
     assert req.milestone_id == "HR:career:23"
 
 
@@ -75,3 +75,11 @@ def test_stat_codes_registered():
         assert inputs.parse_request(snapshot(stat_code=code)).stat_code == code
     with pytest.raises(inputs.InputError, match="stat_code: 'XYZ' is not registered"):
         inputs.parse_request(snapshot(stat_code="XYZ"))
+
+
+def test_same_player_multiple_stats_are_distinct_decodes(tmp_path):
+    rows = [snapshot(stat_code=c) for c in ("HR", "H", "RBI")]
+    p = tmp_path / "multi.json"
+    p.write_text(json.dumps(rows))
+    ids = [r.decode_id for r in inputs.load(p)]
+    assert ids == [f"MLB-2026-10-21-FIXTURE-PA_FICTIONAL-A_{c}" for c in ("HR", "H", "RBI")]

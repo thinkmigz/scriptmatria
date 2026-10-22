@@ -1,6 +1,6 @@
 # Zilla 3.0 Master Decoding Rulebook
 
-**Version:** v0.2 — merged draft · **Rule registry:** v3.1.0 (`scriptmatria/registry/rules_v3.json`) · **Mode:** TAG-ONLY
+**Version:** v0.2 — merged draft · **Rule registry:** v3.2.0 (`scriptmatria/registry/rules_v3.json`) · **Mode:** TAG-ONLY
 **Primary track:** individual athlete statistical milestones · **Pilot:** MLB career home runs
 
 > **Governance.** This is the player-milestone successor contract. It merges `ZILLA_3_MASTER_RULEBOOK_v0.1_DRAFT.md` (2026-10-21) with the §13 decisions approved on 2026-10-22, and replaces the repo's earlier v2 rulebook.
@@ -33,14 +33,14 @@ Producing many matches, picking an outcome after the fact, or claiming that alig
 **Out of scope until separately specified:**
 - picks, sides, totals, parlays, confidence tiers and weights
 - per-game threshold props
-- live scraping or implicit data sources
+- live scraping or implicit data sources (only approved, versioned adapters are allowed; see §2)
 - opportunistic phrases, 35-cipher sweeps, ad hoc reductions and concat ladders
 - historical rewrites
 - any predictive claim
 
 ## 2. Source hierarchy
 
-1. The sealed **input snapshot** for the player and event.
+1. The sealed **input snapshot** for the player and event: entered manually, or drafted by an **approved adapter** and attested by an operator.
 2. The **rule registry** (`rules_v3.json`) and the math implementations, at explicit versions.
 3. The **approved phrase registry** (`phrases_mlb.json`).
 4. The **symbolic code registry** (§6).
@@ -77,7 +77,12 @@ Overlays are **off unless requested** (`moon`, `zodiac`, `keywords`). A missing 
 - an unimplemented scope
 - an invalid timezone, time or overlay
 
-**Source policy (decided):** manual only. Snapshots are entered by an operator.
+**Source policy (decided 2026-10-22):** manual or approved adapter with operator sign-off.
+- **Approved adapters:** `mlb-statsapi@0.1.0`, which reads `statsapi.mlb.com`.
+- **Drafts only:** an adapter never decodes. It writes a **draft** in which every value carries its exact URL and `fetched_at_utc`, plus a content hash.
+- **Sign-off:** `scriptmatria attest` checks the hash and records who signed the draft and when. Only an attested snapshot passes the input lock, because `operator_attestation` is required.
+- **No silent edits:** a draft edited after fetching is refused unless the operator attests with `--allow-edits`, and that edit is written into the attestation.
+- **Stat definition:** for `mlb-statsapi`, career totals are **regular-season** career totals; postseason games are not included.
 
 **Pilot stats:** HR (approved), H (trial), RBI (trial). Any other `stat_code` fails the input lock. A trial-stat decode is labeled in the input summary, the summary row and the ritual note, and its decode status reads `Partial: trial stat`.
 
@@ -221,7 +226,7 @@ Each decode emits, in order:
 7. an audit block: counts, versions, hashes and overlays not requested
 8. a one-sentence descriptive ritual note, never a pick
 
-**Exports:** `<event_id>_<player_id>.json` (canonical), `.md`, `.csv` (the grid) and `.ledger.jsonl` (every comparison). Each run also writes `summary.csv` and `decodes.xlsx`, which has Summary, Relationships and Evidence sheets. The CSV, JSON and Markdown reconcile exactly to the ledger.
+**Exports:** `<event_id>_<player_id>_<stat_code>.json` (canonical), `.md`, `.csv` (the grid) and `.ledger.jsonl` (every comparison). Each run also writes `summary.csv` and `decodes.xlsx`, which has Summary, Relationships and Evidence sheets. The CSV, JSON and Markdown reconcile exactly to the ledger.
 
 ## 10. Sealing and post-event grading
 
@@ -283,7 +288,7 @@ Old decodes keep the versions they were sealed under.
 
 | # | Item | Status |
 | --- | --- | --- |
-| 1 | Player-prop source policy | **Decided:** manual only |
+| 1 | Player-prop source policy | **Decided:** manual or approved adapter with operator sign-off (`mlb-statsapi@0.1.0`) |
 | 2 | Pilot stat | **Decided:** MLB career HR (approved); career H and RBI as **trial** stats (2026-10-22, World Series test) |
 | 3 | Opponent phrase scope | **Decided:** city, nickname and city+nickname; no abbreviations |
 | 4 | Leap-day birthdays / lunar time source | **Decided:** Feb 29 pending (fail closed); moon needs the event start time (Meeus ch. 49) |

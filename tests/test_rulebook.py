@@ -58,7 +58,10 @@ def test_statuses_and_decisions_listed():
     for status in REGISTRY["statuses"]:
         assert f"`{status}`" in RULEBOOK, status
     assert "NOT_EVALUATED" in RULEBOOK and "DEPENDENCY_REVIEW_REQUIRED" in RULEBOOK
-    assert "**Decided:** manual only" in RULEBOOK
+    assert "**Decided:** manual or approved adapter with operator sign-off" in RULEBOOK
+    for adapter in REGISTRY["approved_adapters"]:
+        assert f"`{adapter}`" in RULEBOOK
+    assert tuple(REGISTRY["approved_adapters"]) == inputs.APPROVED_ADAPTERS
 
 
 def test_pilot_stats_match():

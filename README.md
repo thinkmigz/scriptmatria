@@ -25,7 +25,7 @@ scriptmatria grade MLB-2026-10-21-FIXTURE-PA_FICTIONAL-A --outcome achieved --ac
 scriptmatria gematria "Mercury"
 ```
 
-**Files written per decode** (`reports/<event_id>_<player_id>.*`):
+**Files written per decode** (`reports/<event_id>_<player_id>_<stat_code>.*`):
 
 | File | Contents |
 | --- | --- |
@@ -120,3 +120,26 @@ The suite covers the rulebook §12 acceptance gates and all the roadmap Phase 6 
 ```bash
 scriptmatria decode examples/ws2026_g1_template.csv --out reports/ws2026_g1
 ```
+
+## Fetching player data (MLB Stats API adapter)
+
+The source policy is **manual or an approved adapter with operator sign-off**. The approved adapter is `mlb-statsapi@0.1.0`, which reads `statsapi.mlb.com` (no API key needed).
+
+```bash
+# 1. Draft: top 3 regular-season HR hitters per team on the active roster, career HR/H/RBI,
+#    birthdays and jerseys. Every value records its exact URL and fetch time.
+scriptmatria fetch mlb --event-id MLB-2026-10-23-TB-MIL --date 2026-10-23 --start 19:00 \
+  --timezone America/Chicago --home MIL --away TB --top-hr 3 --stats HR,H,RBI \
+  --out drafts/ws2026_g1.draft.json
+
+# 2. Review the printed table and the draft, then sign it. Unsigned drafts cannot be decoded.
+scriptmatria attest drafts/ws2026_g1.draft.json --by "Your Name" --out inputs/ws2026_g1.json
+
+# 3. Decode and seal.
+scriptmatria decode inputs/ws2026_g1.json --out reports/ws2026_g1
+```
+
+- **Stat definition:** career totals are regular-season career totals as the API reports them; postseason games are not included.
+- **Edited drafts:** a draft edited after fetching is refused unless you attest with `--allow-edits`, and that edit is written into the attestation.
+- **Reports:** each decode is `<event_id>_<player_id>_<stat_code>`, so one player can have HR, H and RBI decodes for the same game.
+- **Cloud sessions:** the environment's network policy must allow `statsapi.mlb.com`. Running on your own computer, for example in Cowork, needs nothing extra.

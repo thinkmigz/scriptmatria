@@ -15,6 +15,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 INPUT_SCHEMA_VERSION = "0.1"
 STAT_SCOPES_IMPLEMENTED = ("career",)
 STAT_CODES = {"HR": "approved", "H": "trial", "RBI": "trial"}  # mirrors registry pilot_stats
+APPROVED_ADAPTERS = ("mlb-statsapi@0.1.0",)  # mirrors registry approved_adapters
 OVERLAYS = ("moon", "zodiac", "keywords")
 REQUIRED = ("event_id", "event_date_local", "timezone", "league", "player_id", "player_name",
             "team_id", "opponent_id", "stat_code", "stat_scope", "current_count",
@@ -55,6 +56,7 @@ class DecodeRequest:
     jersey_source: str | None = None
     jersey_effective_date: date | None = None
     event_start_local: time | None = None
+    adapter: str | None = None
     overlays: tuple[str, ...] = ()
     requested_phrases: tuple[RequestedPhrase, ...] = field(default_factory=tuple)
 
@@ -64,7 +66,7 @@ class DecodeRequest:
 
     @property
     def decode_id(self) -> str:
-        return f"{self.event_id}_{self.player_id}"
+        return f"{self.event_id}_{self.player_id}_{self.stat_code}"
 
     @property
     def milestone_id(self) -> str:
@@ -96,6 +98,7 @@ class DecodeRequest:
             "jersey_source": self.jersey_source,
             "jersey_effective_date": iso(self.jersey_effective_date),
             "event_start_local": self.event_start_local.strftime("%H:%M") if self.event_start_local else None,
+            "adapter": self.adapter,
             "overlays": list(self.overlays),
             "requested_phrases": [{"team_id": p.team_id, "phrase": p.phrase} for p in self.requested_phrases],
         }
@@ -169,6 +172,9 @@ def parse_request(raw: dict) -> DecodeRequest:
                       f"(supported: {', '.join(STAT_SCOPES_IMPLEMENTED)})")
     if t["stat_code"] and t["stat_code"] not in STAT_CODES:
         errors.append(f"stat_code: '{t['stat_code']}' is not registered (allowed: {', '.join(STAT_CODES)})")
+    adapter = _text(raw, "adapter", errors)
+    if adapter and adapter not in APPROVED_ADAPTERS:
+        errors.append(f"adapter: '{adapter}' is not approved (approved: {', '.join(APPROVED_ADAPTERS)})")
     if t["team_id"] and t["team_id"] == t["opponent_id"]:
         errors.append("opponent_id: must differ from team_id")
 
@@ -217,7 +223,7 @@ def parse_request(raw: dict) -> DecodeRequest:
         operator_attestation=t["operator_attestation"],
         birth_date=birth, birth_date_source=_text(raw, "birth_date_source", errors),
         jersey=jersey, jersey_source=_text(raw, "jersey_source", errors),
-        jersey_effective_date=jersey_eff, event_start_local=start,
+        jersey_effective_date=jersey_eff, event_start_local=start, adapter=adapter,
         overlays=tuple(sorted(set(overlays))), requested_phrases=tuple(requested),
     )
 
@@ -248,5 +254,5 @@ def load(path: str | Path) -> list[DecodeRequest]:
     ids = [r.decode_id for r in requests]
     dupes = sorted({i for i in ids if ids.count(i) > 1})
     if dupes:
-        raise InputError(f"duplicate decodes (event_id + player_id): {', '.join(dupes)}")
+        raise InputError(f"duplicate decodes (event_id + player_id + stat_code): {', '.join(dupes)}")
     return requests

@@ -1,5 +1,5 @@
 {
-  "registry_version": "3.1.0",
+  "registry_version": "3.2.0",
   "rulebook_version": "0.2",
   "mode": "TAG-ONLY",
   "notes": "Player-milestone registry for the Zilla 3.0 pilot (MLB career HR). Merges ZILLA_3_MASTER_RULEBOOK_v0.1_DRAFT with the approved section 13 decisions of 2026-10-22. rules_v1.json and rules_v2.json are kept unchanged as history.",
@@ -14,7 +14,8 @@
     "TRIPLE_PRIME_SYNC is NOT_EVALUATED until an independence rule is locked; PRIME_CLUSTER is always flagged DEPENDENCY_REVIEW_REQUIRED.",
     "The control test moved out of the decode into the separate research command.",
     "The milestone is derived as current_count + 1; v0.1 implements career scope only.",
-    "3.1.0: stat codes are registered. HR is the approved pilot stat; H and RBI are trial stats, labeled in every output."
+    "3.1.0: stat codes are registered. HR is the approved pilot stat; H and RBI are trial stats, labeled in every output.",
+    "3.2.0: source policy is manual or an approved adapter with operator sign-off; mlb-statsapi@0.1.0 approved."
   ],
   "statuses": {
     "QUALIFIED_STRUCTURAL": "exact hit of a structural rule from a verified source",
@@ -26,7 +27,7 @@
     "RULE_CONFLICT": "two rule versions disagree; the match is withheld"
   },
   "decisions": {
-    "source_policy": "manual-only (operator-entered snapshot)",
+    "source_policy": "manual or approved adapter with operator sign-off (2026-10-22)",
     "pilot_stat": "MLB career HR (approved); career H and RBI as trial stats",
     "phrase_scope": "city, nickname, city+nickname; no abbreviations",
     "leap_day_birthdays": "pending: birthday-anchored spans UNVERIFIED in non-leap years",
@@ -199,5 +200,17 @@
     "HR": "approved",
     "H": "trial",
     "RBI": "trial"
+  },
+  "approved_adapters": {
+    "mlb-statsapi@0.1.0": {
+      "source": "https://statsapi.mlb.com/api/v1",
+      "provides": [
+        "active roster and jersey",
+        "season HR leaders",
+        "birthDate",
+        "career regular-season homeRuns, hits, rbi"
+      ],
+      "output": "draft snapshot with per-field URL and fetched_at_utc; never decoded until attested"
+    }
   }
 }

@@ -58,7 +58,7 @@ def test_seal_and_replay_are_identical(tmp_path):
                 "created_at_utc", "event_start_utc", "sealed_before_event_start"):
         assert key in seal
     names = {f.name for f in a.iterdir()}
-    stem = "MLB-2026-10-21-FIXTURE-PA_FICTIONAL-A"
+    stem = "MLB-2026-10-21-FIXTURE-PA_FICTIONAL-A_HR"
     assert {f"{stem}.json", f"{stem}.md", f"{stem}.csv", f"{stem}.ledger.jsonl"} <= names
 
 
@@ -67,7 +67,7 @@ def test_corrected_snapshot_creates_linked_revision(tmp_path):
     src.write_text(json.dumps([snapshot()]))
     out = tmp_path / "out"
     cli.main(["decode", str(src), "--out", str(out)])
-    stem = "MLB-2026-10-21-FIXTURE-PA_FICTIONAL-A"
+    stem = "MLB-2026-10-21-FIXTURE-PA_FICTIONAL-A_HR"
     original = (out / f"{stem}.json").read_bytes()
     cli.main(["decode", str(src), "--out", str(out)])
     assert not (out / f"{stem}.v2.json").exists()
@@ -81,7 +81,7 @@ def test_corrected_snapshot_creates_linked_revision(tmp_path):
 
 def test_grading_append_only_with_unresolved(tmp_path):
     cli.main(["decode", str(PILOT), "--out", str(tmp_path)])
-    did = "MLB-2026-10-21-FIXTURE-PA_FICTIONAL-A"
+    did = "MLB-2026-10-21-FIXTURE-PA_FICTIONAL-A_HR"
     before = (tmp_path / f"{did}.json").read_bytes()
     grading.grade(tmp_path, did, "unresolved", note="doubleheader stat correction pending")
     with pytest.raises(grading.GradeError):
