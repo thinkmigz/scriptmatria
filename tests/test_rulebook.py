@@ -68,3 +68,8 @@ def test_pilot_stats_match():
     listed = ", ".join(f"{c} ({s})" for c, s in REGISTRY["pilot_stats"].items())
     assert f"**Pilot stats:** {listed}." in RULEBOOK
     assert inputs.STAT_CODES == REGISTRY["pilot_stats"]
+
+
+def test_stat_scopes_match():
+    listed = ", ".join(f"{c} ({s})" for c, s in REGISTRY["stat_scopes"].items())
+    assert f"**Stat scopes:** {listed}." in RULEBOOK

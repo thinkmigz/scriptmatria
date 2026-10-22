@@ -43,7 +43,7 @@ def test_missing_optional_fields_are_allowed():
     ({"current_count_as_of": "2026-10-22T10:00:00"}, "current_count_as_of: after the event date"),
     ({"jersey_effective_date": "2026-11-01"}, "jersey_effective_date: after the event date"),
     ({"opponent_id": "NYY"}, "opponent_id: must differ"),
-    ({"stat_scope": "season"}, "not implemented in v0.1"),
+    ({"stat_scope": "season"}, "is not implemented"),
     ({"current_count": -1}, "must not be negative"),
     ({"timezone": "Mars/Olympus"}, "not an IANA timezone"),
     ({"overlays": ["tarot"]}, "overlays: 'tarot'"),
@@ -83,3 +83,13 @@ def test_same_player_multiple_stats_are_distinct_decodes(tmp_path):
     p.write_text(json.dumps(rows))
     ids = [r.decode_id for r in inputs.load(p)]
     assert ids == [f"MLB-2026-10-21-FIXTURE-PA_FICTIONAL-A_{c}" for c in ("HR", "H", "RBI")]
+
+
+def test_postseason_scope_is_distinct():
+    from conftest import REGISTRY
+    assert inputs.STAT_SCOPES == REGISTRY["stat_scopes"]
+    assert SCHEMA["properties"]["stat_scope"]["enum"] == list(inputs.STAT_SCOPES)
+    career = inputs.parse_request(snapshot())
+    post = inputs.parse_request(snapshot(stat_scope="postseason", current_count=3))
+    assert career.decode_id.endswith("_HR") and post.decode_id.endswith("_HR-postseason")
+    assert post.milestone_id == "HR:postseason:4"

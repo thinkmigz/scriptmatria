@@ -13,7 +13,8 @@ from pathlib import Path
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 INPUT_SCHEMA_VERSION = "0.1"
-STAT_SCOPES_IMPLEMENTED = ("career",)
+STAT_SCOPES_IMPLEMENTED = ("career", "postseason")
+STAT_SCOPES = {"career": "approved", "postseason": "trial"}  # mirrors registry stat_scopes
 STAT_CODES = {"HR": "approved", "H": "trial", "RBI": "trial"}  # mirrors registry pilot_stats
 APPROVED_ADAPTERS = ("mlb-statsapi@0.1.0",)  # mirrors registry approved_adapters
 OVERLAYS = ("moon", "zodiac", "keywords")
@@ -66,7 +67,8 @@ class DecodeRequest:
 
     @property
     def decode_id(self) -> str:
-        return f"{self.event_id}_{self.player_id}_{self.stat_code}"
+        scope = "" if self.stat_scope == "career" else f"-{self.stat_scope}"
+        return f"{self.event_id}_{self.player_id}_{self.stat_code}{scope}"
 
     @property
     def milestone_id(self) -> str:
@@ -168,7 +170,7 @@ def parse_request(raw: dict) -> DecodeRequest:
         except (ZoneInfoNotFoundError, ValueError):
             errors.append(f"timezone: '{t['timezone']}' is not an IANA timezone (e.g. America/New_York)")
     if t["stat_scope"] and t["stat_scope"] not in STAT_SCOPES_IMPLEMENTED:
-        errors.append(f"stat_scope: '{t['stat_scope']}' is not implemented in v0.1 "
+        errors.append(f"stat_scope: '{t['stat_scope']}' is not implemented "
                       f"(supported: {', '.join(STAT_SCOPES_IMPLEMENTED)})")
     if t["stat_code"] and t["stat_code"] not in STAT_CODES:
         errors.append(f"stat_code: '{t['stat_code']}' is not registered (allowed: {', '.join(STAT_CODES)})")

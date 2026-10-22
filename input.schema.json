@@ -67,8 +67,10 @@
     "stat_scope": {
       "type": "string",
       "enum": [
-        "career"
-      ]
+        "career",
+        "postseason"
+      ],
+      "description": "career = regular-season career totals; postseason = career postseason totals (trial), re-snapshotted before every game"
     },
     "current_count": {
       "type": "integer",

@@ -79,10 +79,16 @@ def _stat_standing(stat_code: str) -> str:
     return inputs.STAT_CODES.get(stat_code, "unregistered")
 
 
-def _status(records: list[dict], stat_code: str) -> str:
+def _scope_standing(scope: str) -> str:
+    return inputs.STAT_SCOPES.get(scope, "unregistered")
+
+
+def _status(records: list[dict], stat_code: str, scope: str = "career") -> str:
     problems = []
     if _stat_standing(stat_code) != "approved":
         problems.append(f"{_stat_standing(stat_code)} stat")
+    if _scope_standing(scope) != "approved":
+        problems.append(f"{_scope_standing(scope)} scope")
     for status, label in ((RULE_CONFLICT, "rule conflict"), (INVALID, "invalid sources"),
                           (UNVERIFIED, "unverified inputs")):
         n = sum(1 for r in records if r["status"] == status)
@@ -101,8 +107,10 @@ def _note(req: inputs.DecodeRequest, records: list[dict], cls: dict) -> str:
                     seen.append(label)
         return seen
     standing = _stat_standing(req.stat_code)
-    parts = [f"{req.player_name}: next {req.stat_code} #{req.milestone}"
-             + ("" if standing == "approved" else f" ({standing} stat, outside the approved pilot)")]
+    parts = [f"{req.player_name}: next {req.stat_scope} {req.stat_code} #{req.milestone}"
+             + ("" if standing == "approved" else f" ({standing} stat, outside the approved pilot)")
+             + ("" if _scope_standing(req.stat_scope) == "approved"
+                else f" ({_scope_standing(req.stat_scope)} scope)")]
     q = names(QS) + names(QC)
     parts.append(f"qualified alignments: {', '.join(q)}" if q else "no qualified alignments")
     s = names(SN)
@@ -150,7 +158,7 @@ def decode(req: inputs.DecodeRequest, registry: dict, phrase_reg: dict) -> dict:
         "grid": _grid(records),
         "classification": cls,
         "overlays": _overlays(req),
-        "decode_status": _status(records, req.stat_code),
+        "decode_status": _status(records, req.stat_code, req.stat_scope),
         "ledger_summary": validator.ledger(records),
         "records": records,
     }
@@ -188,7 +196,9 @@ def summary_row(res: dict) -> dict:
     return {
         "Decode ID": res["decode_id"], "Event ID": inp["event_id"], "Event date": inp["event_date_local"],
         "League": inp["league"], "Player ID": inp["player_id"], "Player": inp["player_name"],
-        "Team": inp["team_id"], "Opponent": inp["opponent_id"], "Stat": f"{inp['stat_code']} ({inp['stat_scope']}, {_stat_standing(inp['stat_code'])})",
+        "Team": inp["team_id"], "Opponent": inp["opponent_id"], "Stat": f"{inp['stat_code']} ({inp['stat_scope']}, {_stat_standing(inp['stat_code'])}"
+                                + ("" if _scope_standing(inp["stat_scope"]) == "approved"
+                                   else f", {_scope_standing(inp['stat_scope'])} scope") + ")",
         "Current": inp["current_count"], "Target": inp["target_count"], "Count as of": inp["current_count_as_of"],
         "Prime index": res["milestone_card"]["M-INDEX"] or "Not prime",
         "Reverse prime": _lane(recs, "M-REVPRIME"), "PIGR-A": _lane(recs, "PIGR-A"), "PIGR-B": _lane(recs, "PIGR-B"),

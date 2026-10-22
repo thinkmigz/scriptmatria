@@ -143,3 +143,10 @@ scriptmatria decode inputs/ws2026_g1.json --out reports/ws2026_g1
 - **Edited drafts:** a draft edited after fetching is refused unless you attest with `--allow-edits`, and that edit is written into the attestation.
 - **Reports:** each decode is `<event_id>_<player_id>_<stat_code>`, so one player can have HR, H and RBI decodes for the same game.
 - **Cloud sessions:** the environment's network policy must allow `statsapi.mlb.com`. Running on your own computer, for example in Cowork, needs nothing extra.
+
+## Stat scopes: career vs postseason
+
+- `career`: regular-season career totals, the MLB official career line. World Series games don't change it.
+- `postseason` (**trial**): career postseason totals across all rounds and years, as of before the event. They change after every postseason game, so each game needs a **fresh snapshot**, attested before that game's first pitch.
+
+Postseason decode IDs end in `-postseason`, for example `MLB-2026-10-24-TB-MIL_turang-brice-668930_HR-postseason`. The MLB Stats API adapter only drafts `career` snapshots; postseason snapshots are entered manually and attested.

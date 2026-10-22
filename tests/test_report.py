@@ -134,3 +134,10 @@ def test_trial_stats_are_labeled(pilot):
     assert "trial stat, outside the approved pilot" in hits["ritual_note"]
     assert hits["summary"]["Stat"] == "H (career, trial)"
     assert "H (trial)" in report.to_markdown(hits)
+
+
+def test_postseason_scope_is_labeled_trial():
+    post = decode(snapshot(stat_scope="postseason", current_count=3))
+    assert "trial scope" in post["decode_status"]
+    assert post["summary"]["Stat"] == "HR (postseason, approved, trial scope)"
+    assert "next postseason HR #4" in post["ritual_note"] and "(trial scope)" in post["ritual_note"]

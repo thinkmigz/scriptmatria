@@ -1,5 +1,5 @@
 {
-  "registry_version": "3.2.0",
+  "registry_version": "3.3.0",
   "rulebook_version": "0.2",
   "mode": "TAG-ONLY",
   "notes": "Player-milestone registry for the Zilla 3.0 pilot (MLB career HR). Merges ZILLA_3_MASTER_RULEBOOK_v0.1_DRAFT with the approved section 13 decisions of 2026-10-22. rules_v1.json and rules_v2.json are kept unchanged as history.",
@@ -15,7 +15,8 @@
     "The control test moved out of the decode into the separate research command.",
     "The milestone is derived as current_count + 1; v0.1 implements career scope only.",
     "3.1.0: stat codes are registered. HR is the approved pilot stat; H and RBI are trial stats, labeled in every output.",
-    "3.2.0: source policy is manual or an approved adapter with operator sign-off; mlb-statsapi@0.1.0 approved."
+    "3.2.0: source policy is manual or an approved adapter with operator sign-off; mlb-statsapi@0.1.0 approved.",
+    "3.3.0: stat_scope 'postseason' (trial) = career postseason totals, all rounds and years, as of before the event; re-snapshotted before every game."
   ],
   "statuses": {
     "QUALIFIED_STRUCTURAL": "exact hit of a structural rule from a verified source",
@@ -60,7 +61,11 @@
     "birthday": "Exact calendar arithmetic from birth date to the local event date. An event-day birthday gives days_since = 0 and days_until = 0. Spans are distinct anchors.",
     "moon_phase": "algorithm meeus-ch49 (true phases, dT = 69 s). Requires event_start_local and timezone; the phase name is judged over the local calendar day and the moon age at the start time.",
     "zodiac": "Fixed tropical sun-sign table: Aries 3/21, Taurus 4/20, Gemini 5/21, Cancer 6/21, Leo 7/23, Virgo 8/23, Libra 9/23, Scorpio 10/23, Sagittarius 11/22, Capricorn 12/22, Aquarius 1/20, Pisces 2/19.",
-    "control_test": "Research only: the same verified sources decoded against alternative milestones within +/- window of M."
+    "control_test": "Research only: the same verified sources decoded against alternative milestones within +/- window of M.",
+    "stat_scopes": {
+      "career": "regular-season career totals (MLB official career line); postseason games do not change it",
+      "postseason": "career postseason totals across all rounds and years, as of before the event; changes after every postseason game, so each game needs a fresh snapshot"
+    }
   },
   "overlays": [
     "moon",
@@ -212,5 +217,9 @@
       ],
       "output": "draft snapshot with per-field URL and fetched_at_utc; never decoded until attested"
     }
+  },
+  "stat_scopes": {
+    "career": "approved",
+    "postseason": "trial"
   }
 }
