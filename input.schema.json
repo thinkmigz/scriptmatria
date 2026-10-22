@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/thinkmigz/scriptmatria/input.schema.json",
+  "title": "PlayerMilestoneInput v0.1",
+  "description": "Operator-entered snapshot for one player and one cumulative career stat at one event (Zilla 3.0 rulebook \u00a73).",
+  "type": "object",
+  "required": [
+    "event_id",
+    "event_date_local",
+    "timezone",
+    "league",
+    "player_id",
+    "player_name",
+    "team_id",
+    "opponent_id",
+    "stat_code",
+    "stat_scope",
+    "current_count",
+    "current_count_as_of",
+    "current_count_source",
+    "phrase_registry_version",
+    "operator_attestation"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique per scheduled game"
+    },
+    "event_date_local": {
+      "type": "string",
+      "format": "date"
+    },
+    "timezone": {
+      "type": "string",
+      "description": "IANA zone, e.g. America/New_York"
+    },
+    "league": {
+      "type": "string",
+      "description": "Selects the phrase registry (MLB)"
+    },
+    "player_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "player_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "team_id": {
+      "type": "string",
+      "description": "Phrase-registry team ID of the player's team"
+    },
+    "opponent_id": {
+      "type": "string",
+      "description": "Phrase-registry team ID of the opponent"
+    },
+    "stat_code": {
+      "type": "string",
+      "description": "e.g. HR"
+    },
+    "stat_scope": {
+      "type": "string",
+      "enum": [
+        "career"
+      ]
+    },
+    "current_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "The milestone is current_count + 1"
+    },
+    "current_count_as_of": {
+      "type": "string",
+      "description": "ISO date or timestamp; not after the event date"
+    },
+    "current_count_source": {
+      "type": "string",
+      "description": "Where the count came from"
+    },
+    "phrase_registry_version": {
+      "type": "string",
+      "description": "Must equal the loaded registry version"
+    },
+    "operator_attestation": {
+      "type": "string",
+      "description": "Who entered/verified the snapshot"
+    },
+    "birth_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Activates birthday spans"
+    },
+    "birth_date_source": {
+      "type": "string"
+    },
+    "jersey": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Activates jersey sync"
+    },
+    "jersey_source": {
+      "type": "string"
+    },
+    "jersey_effective_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Not after the event date"
+    },
+    "event_start_local": {
+      "type": "string",
+      "pattern": "^[0-2][0-9]:[0-5][0-9]$",
+      "description": "Required for the moon overlay"
+    },
+    "overlays": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "moon",
+          "zodiac",
+          "keywords"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "requested_phrases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "team_id",
+          "phrase"
+        ],
+        "properties": {
+          "team_id": {
+            "type": "string"
+          },
+          "phrase": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Operator-requested phrases; anything outside the registry or event is recorded INVALID"
+    }
+  },
+  "additionalProperties": false
+}

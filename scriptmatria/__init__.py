@@ -1,3 +1,3 @@
 """Scriptmatria: a lite, deterministic, TAG-ONLY ritual decoder."""
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"

@@ -16,17 +16,29 @@ def test_ymd_never_negative_across_leap_years():
     for birth in (date(1992, 2, 29), date(1999, 12, 31), date(2000, 3, 1), date(2003, 1, 31)):
         d = birth
         while d < date(2009, 1, 1):
-            y, m, dd = dates.ymd(birth, d)
-            assert y >= 0 and 0 <= m < 12 and dd >= 0
+            result = dates.ymd(birth, d)
+            if result is None:  # Feb 29 observance pending
+                assert birth.month == 2 and birth.day == 29
+            else:
+                y, m, dd = result
+                assert y >= 0 and 0 <= m < 12 and dd >= 0
             d += timedelta(days=13)
 
 
-def test_feb29_birthday_observed_feb28():
+def test_feb29_birthday_pending_in_nonleap_years():
     s = dates.birthday_spans(date(2000, 2, 29), date(2021, 2, 28))
-    assert s["days_since_birthday"] == 0
-    assert s["age_years"] == 21  # same Feb 28 convention for the year boundary
+    assert s["total_days"] == 7670 and s["total_weeks"] == 1095
+    assert s["age_years"] is None and s["days_since_birthday"] is None and s["days_until_birthday"] is None
+    s = dates.birthday_spans(date(2000, 2, 29), date(2023, 6, 1))
+    assert (s["age_years"], s["ymd_months"], s["ymd_days"]) == (23, 3, 3)  # unaffected by observance
+    assert s["days_since_birthday"] is None and s["days_until_birthday"] == 273  # next: 2024-02-29
+
+
+def test_feb29_birthday_in_leap_years():
+    assert dates.birthday_spans(date(2000, 2, 29), date(2024, 2, 29))["days_since_birthday"] == 0
     s = dates.birthday_spans(date(2000, 2, 29), date(2024, 3, 1))
-    assert s["days_since_birthday"] == 1 and s["age_years"] == 24
+    assert s["days_since_birthday"] == 1 and s["age_years"] == 24 and s["days_until_birthday"] is None
+    assert dates.birthday_spans(date(2000, 2, 29), date(2025, 1, 10))["days_since_birthday"] == 316
 
 
 def test_since_plus_until_is_birthday_year_length():

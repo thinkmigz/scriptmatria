@@ -1,0 +1,22 @@
+{
+  "registry": "phrases",
+  "league": "FIXTURE",
+  "phrase_registry_version": "fixture-0.1.0",
+  "scope": "math fixtures only, never a real matchup",
+  "provenance": "ZILLA_3_IMPLEMENTATION_ROADMAP_v0.1 Phase 6: 'Memphis' (Ordinal 83) is a PIGR-B math fixture only.",
+  "notes": {},
+  "teams": {
+    "MEMFX": {
+      "city": "Memphis",
+      "nickname": null
+    },
+    "HOMEFX": {
+      "city": null,
+      "nickname": "Fixture"
+    },
+    "ALIASFX": {
+      "city": "Alias",
+      "nickname": "Alias"
+    }
+  }
+}

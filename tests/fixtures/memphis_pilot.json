@@ -1,0 +1,32 @@
+{
+  "decodes": [
+    {
+      "event_id": "FX-2026-10-21-MEMPHIS",
+      "event_date_local": "2026-10-21",
+      "timezone": "America/New_York",
+      "event_start_local": "19:05",
+      "league": "FIXTURE",
+      "player_id": "FICTIONAL-A",
+      "player_name": "Fictional Player A",
+      "team_id": "HOMEFX",
+      "opponent_id": "MEMFX",
+      "stat_code": "HR",
+      "stat_scope": "career",
+      "current_count": 22,
+      "current_count_as_of": "2026-10-20T23:59:00-04:00",
+      "current_count_source": "operator entry (fictional pilot)",
+      "phrase_registry_version": "fixture-0.1.0",
+      "operator_attestation": "roadmap Phase 6 math fixture (Memphis EO 83)",
+      "birth_date": "2000-06-01",
+      "birth_date_source": "fictional",
+      "jersey": 23,
+      "jersey_source": "fictional",
+      "jersey_effective_date": "2026-03-26",
+      "overlays": [
+        "keywords",
+        "moon",
+        "zodiac"
+      ]
+    }
+  ]
+}

@@ -1,18 +1,24 @@
-"""Load decode requests from local JSON or CSV files.
+"""PlayerMilestoneInput v0.1: load and validate operator-entered decode snapshots
+from local JSON or CSV (rulebook §3).
 
-Missing data is never inferred: a field that is not supplied stays None and the
-rules that need it report "Unverified".
+Missing optional data is never inferred: it stays None and the affected lanes
+report UNVERIFIED. Contradictory data fails the input lock.
 """
 
 import csv
 import json
 from dataclasses import dataclass, field
-from datetime import date, time
+from datetime import date, datetime, time
 from pathlib import Path
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-ENTITIES = ("opponent", "team", "player", "event")
-MILESTONE_TYPES = ("cumulative", "threshold")
+INPUT_SCHEMA_VERSION = "0.1"
+STAT_SCOPES_IMPLEMENTED = ("career",)
+OVERLAYS = ("moon", "zodiac", "keywords")
+REQUIRED = ("event_id", "event_date_local", "timezone", "league", "player_id", "player_name",
+            "team_id", "opponent_id", "stat_code", "stat_scope", "current_count",
+            "current_count_as_of", "current_count_source", "phrase_registry_version",
+            "operator_attestation")
 
 
 class InputError(ValueError):
@@ -20,176 +26,208 @@ class InputError(ValueError):
 
 
 @dataclass(frozen=True)
-class Phrase:
-    entity: str
+class RequestedPhrase:
+    team_id: str
     phrase: str
 
 
 @dataclass(frozen=True)
-class SuppliedValue:
-    entity: str
-    label: str
-    value: int
-
-
-@dataclass(frozen=True)
 class DecodeRequest:
-    id: str
-    player: str
-    milestone: int
-    milestone_type: str | None = None
-    stat_category: str | None = None
-    current: int | None = None
-    birthday: date | None = None
+    event_id: str
+    event_date: date
+    timezone: str
+    league: str
+    player_id: str
+    player_name: str
+    team_id: str
+    opponent_id: str
+    stat_code: str
+    stat_scope: str
+    current_count: int
+    current_count_as_of: str
+    current_count_source: str
+    phrase_registry_version: str
+    operator_attestation: str
+    birth_date: date | None = None
+    birth_date_source: str | None = None
     jersey: int | None = None
-    event_date: date | None = None
-    timezone: str | None = None
-    event_time: time | None = None
-    team: str | None = None
-    opponent: str | None = None
-    phrases: tuple[Phrase, ...] = field(default_factory=tuple)
-    values: tuple[SuppliedValue, ...] = field(default_factory=tuple)
+    jersey_source: str | None = None
+    jersey_effective_date: date | None = None
+    event_start_local: time | None = None
+    overlays: tuple[str, ...] = ()
+    requested_phrases: tuple[RequestedPhrase, ...] = field(default_factory=tuple)
+
+    @property
+    def milestone(self) -> int:
+        return self.current_count + 1
+
+    @property
+    def decode_id(self) -> str:
+        return f"{self.event_id}_{self.player_id}"
+
+    @property
+    def milestone_id(self) -> str:
+        return f"{self.stat_code}:{self.stat_scope}:{self.milestone}"
 
     def to_dict(self) -> dict:
+        iso = lambda d: d.isoformat() if d else None  # noqa: E731
         return {
-            "id": self.id,
-            "player": self.player,
-            "milestone": self.milestone,
-            "milestone_type": self.milestone_type,
-            "stat_category": self.stat_category,
-            "current": self.current,
-            "birthday": self.birthday.isoformat() if self.birthday else None,
-            "jersey": self.jersey,
-            "event_date": self.event_date.isoformat() if self.event_date else None,
+            "input_schema_version": INPUT_SCHEMA_VERSION,
+            "event_id": self.event_id,
+            "event_date_local": iso(self.event_date),
             "timezone": self.timezone,
-            "event_time": self.event_time.strftime("%H:%M") if self.event_time else None,
-            "team": self.team,
-            "opponent": self.opponent,
-            "phrases": [{"entity": p.entity, "phrase": p.phrase} for p in self.phrases],
-            "values": [{"entity": v.entity, "label": v.label, "value": v.value} for v in self.values],
+            "league": self.league,
+            "player_id": self.player_id,
+            "player_name": self.player_name,
+            "team_id": self.team_id,
+            "opponent_id": self.opponent_id,
+            "stat_code": self.stat_code,
+            "stat_scope": self.stat_scope,
+            "current_count": self.current_count,
+            "current_count_as_of": self.current_count_as_of,
+            "current_count_source": self.current_count_source,
+            "target_count": self.milestone,
+            "phrase_registry_version": self.phrase_registry_version,
+            "operator_attestation": self.operator_attestation,
+            "birth_date": iso(self.birth_date),
+            "birth_date_source": self.birth_date_source,
+            "jersey": self.jersey,
+            "jersey_source": self.jersey_source,
+            "jersey_effective_date": iso(self.jersey_effective_date),
+            "event_start_local": self.event_start_local.strftime("%H:%M") if self.event_start_local else None,
+            "overlays": list(self.overlays),
+            "requested_phrases": [{"team_id": p.team_id, "phrase": p.phrase} for p in self.requested_phrases],
         }
 
 
-def _date(raw, name, errors):
-    if raw in (None, ""):
-        return None
-    try:
-        return date.fromisoformat(str(raw))
-    except ValueError:
-        errors.append(f"{name}: '{raw}' is not an ISO date (YYYY-MM-DD)")
-        return None
+def _text(raw, name, errors, required=False):
+    v = raw.get(name)
+    v = str(v).strip() if v not in (None, "") else None
+    if required and not v:
+        errors.append(f"{name}: required")
+    return v
 
 
-def _int(raw, name, errors, required=False):
-    if raw in (None, ""):
+def _date(raw, name, errors, required=False):
+    v = raw.get(name)
+    if v in (None, ""):
         if required:
             errors.append(f"{name}: required")
         return None
     try:
-        n = int(raw)
+        return date.fromisoformat(str(v))
+    except ValueError:
+        errors.append(f"{name}: '{v}' is not an ISO date (YYYY-MM-DD)")
+        return None
+
+
+def _int(raw, name, errors, required=False):
+    v = raw.get(name)
+    if v in (None, ""):
+        if required:
+            errors.append(f"{name}: required")
+        return None
+    try:
+        n = int(v)
     except (TypeError, ValueError):
-        errors.append(f"{name}: '{raw}' is not a whole number")
+        errors.append(f"{name}: '{v}' is not a whole number")
         return None
     if n < 0:
         errors.append(f"{name}: must not be negative")
     return n
 
 
-def _time(raw, errors):
-    if raw in (None, ""):
-        return None
+def _as_of(raw, errors) -> tuple[str | None, date | None]:
+    v = _text(raw, "current_count_as_of", errors, required=True)
+    if not v:
+        return None, None
     try:
-        return time.fromisoformat(str(raw))
+        return v, datetime.fromisoformat(v).date()
     except ValueError:
-        errors.append(f"event_time: '{raw}' is not a 24-hour time (HH:MM)")
-        return None
-
-
-def _tz(raw, errors):
-    if raw in (None, ""):
-        return None
-    try:
-        ZoneInfo(str(raw))
-    except (ZoneInfoNotFoundError, ValueError):
-        errors.append(f"timezone: '{raw}' is not an IANA timezone (e.g. America/New_York)")
-        return None
-    return str(raw)
-
-
-def _entity(raw, where, errors):
-    if raw not in ENTITIES:
-        errors.append(f"{where}: entity '{raw}' must be one of {', '.join(ENTITIES)}")
-    return raw
+        errors.append(f"current_count_as_of: '{v}' is not an ISO date or timestamp")
+        return None, None
 
 
 def parse_request(raw: dict) -> DecodeRequest:
     errors: list[str] = []
-    rid = str(raw.get("id") or "").strip()
-    player = str(raw.get("player") or "").strip()
-    if not rid:
-        errors.append("id: required")
-    if not player:
-        errors.append("player: required")
-    milestone = _int(raw.get("milestone"), "milestone", errors, required=True)
-    if milestone == 0:
-        errors.append("milestone: must be positive")
-    mtype = raw.get("milestone_type") or None
-    if mtype is not None and mtype not in MILESTONE_TYPES:
-        errors.append(f"milestone_type: '{mtype}' must be one of {', '.join(MILESTONE_TYPES)}")
+    t = {k: _text(raw, k, errors, required=True) for k in
+         ("event_id", "timezone", "league", "player_id", "player_name", "team_id", "opponent_id",
+          "stat_code", "stat_scope", "current_count_source", "phrase_registry_version",
+          "operator_attestation")}
+    event_date = _date(raw, "event_date_local", errors, required=True)
+    current = _int(raw, "current_count", errors, required=True)
+    as_of_text, as_of_date = _as_of(raw, errors)
 
-    phrases = []
-    for i, p in enumerate(raw.get("phrases") or []):
-        text = str(p.get("phrase") or "").strip()
-        if not text:
-            errors.append(f"phrases[{i}]: phrase is empty")
-        phrases.append(Phrase(_entity(p.get("entity"), f"phrases[{i}]", errors), text))
+    if t["timezone"]:
+        try:
+            ZoneInfo(t["timezone"])
+        except (ZoneInfoNotFoundError, ValueError):
+            errors.append(f"timezone: '{t['timezone']}' is not an IANA timezone (e.g. America/New_York)")
+    if t["stat_scope"] and t["stat_scope"] not in STAT_SCOPES_IMPLEMENTED:
+        errors.append(f"stat_scope: '{t['stat_scope']}' is not implemented in v0.1 "
+                      f"(supported: {', '.join(STAT_SCOPES_IMPLEMENTED)})")
+    if t["team_id"] and t["team_id"] == t["opponent_id"]:
+        errors.append("opponent_id: must differ from team_id")
 
-    values = []
-    for i, v in enumerate(raw.get("values") or []):
-        label = str(v.get("label") or "").strip()
-        if not label:
-            errors.append(f"values[{i}]: label is required (where did this number come from?)")
-        n = _int(v.get("value"), f"values[{i}].value", errors, required=True)
-        values.append(SuppliedValue(_entity(v.get("entity"), f"values[{i}]", errors), label, n or 0))
+    start = None
+    if raw.get("event_start_local") not in (None, ""):
+        try:
+            start = time.fromisoformat(str(raw["event_start_local"]))
+        except ValueError:
+            errors.append(f"event_start_local: '{raw['event_start_local']}' is not a 24-hour time (HH:MM)")
 
-    req = DecodeRequest(
-        id=rid,
-        player=player,
-        milestone=milestone or 0,
-        milestone_type=mtype,
-        stat_category=raw.get("stat_category") or None,
-        current=_int(raw.get("current"), "current", errors),
-        birthday=_date(raw.get("birthday"), "birthday", errors),
-        jersey=_int(raw.get("jersey"), "jersey", errors),
-        event_date=_date(raw.get("event_date"), "event_date", errors),
-        timezone=_tz(raw.get("timezone"), errors),
-        event_time=_time(raw.get("event_time"), errors),
-        team=raw.get("team") or None,
-        opponent=raw.get("opponent") or None,
-        phrases=tuple(phrases),
-        values=tuple(values),
-    )
-    if req.birthday and req.event_date and req.event_date < req.birthday:
-        errors.append("event_date: precedes birthday")
+    overlays = raw.get("overlays") or []
+    if isinstance(overlays, str):
+        overlays = [o for o in overlays.split("|") if o]
+    for o in overlays:
+        if o not in OVERLAYS:
+            errors.append(f"overlays: '{o}' must be one of {', '.join(OVERLAYS)}")
+
+    requested = []
+    for i, p in enumerate(raw.get("requested_phrases") or []):
+        tid, text = str(p.get("team_id") or "").strip(), str(p.get("phrase") or "").strip()
+        if not tid or not text:
+            errors.append(f"requested_phrases[{i}]: team_id and phrase are required")
+        requested.append(RequestedPhrase(tid, text))
+
+    birth = _date(raw, "birth_date", errors)
+    jersey_eff = _date(raw, "jersey_effective_date", errors)
+    # Contradictions fail the input lock rather than being silently resolved.
+    if event_date:
+        if birth and birth > event_date:
+            errors.append("birth_date: after the event date")
+        if as_of_date and as_of_date > event_date:
+            errors.append("current_count_as_of: after the event date (a pre-event count is required)")
+        if jersey_eff and jersey_eff > event_date:
+            errors.append("jersey_effective_date: after the event date (jersey not in effect for this event)")
+
+    jersey = _int(raw, "jersey", errors)
     if errors:
-        raise InputError(f"decode '{rid or '?'}': " + "; ".join(errors))
-    return req
+        raise InputError(f"decode '{t.get('event_id') or '?'}_{t.get('player_id') or '?'}': " + "; ".join(errors))
+    return DecodeRequest(
+        event_id=t["event_id"], event_date=event_date, timezone=t["timezone"], league=t["league"],
+        player_id=t["player_id"], player_name=t["player_name"], team_id=t["team_id"],
+        opponent_id=t["opponent_id"], stat_code=t["stat_code"], stat_scope=t["stat_scope"],
+        current_count=current, current_count_as_of=as_of_text,
+        current_count_source=t["current_count_source"],
+        phrase_registry_version=t["phrase_registry_version"],
+        operator_attestation=t["operator_attestation"],
+        birth_date=birth, birth_date_source=_text(raw, "birth_date_source", errors),
+        jersey=jersey, jersey_source=_text(raw, "jersey_source", errors),
+        jersey_effective_date=jersey_eff, event_start_local=start,
+        overlays=tuple(sorted(set(overlays))), requested_phrases=tuple(requested),
+    )
 
 
 def _csv_row(row: dict) -> dict:
-    """CSV columns mirror the JSON keys. `phrases` is 'entity:phrase|entity:phrase',
-    `values` is 'entity:label=value|...'."""
+    """CSV columns mirror the JSON keys. `overlays` is 'moon|zodiac',
+    `requested_phrases` is 'TEAM_ID:phrase|TEAM_ID:phrase'."""
     out = {k: (v.strip() if isinstance(v, str) else v) for k, v in row.items()}
     phrases = []
-    for item in filter(None, (out.pop("phrases", "") or "").split("|")):
-        entity, _, text = item.partition(":")
-        phrases.append({"entity": entity.strip(), "phrase": text.strip()})
-    values = []
-    for item in filter(None, (out.pop("values", "") or "").split("|")):
-        entity, _, rest = item.partition(":")
-        label, _, num = rest.rpartition("=")
-        values.append({"entity": entity.strip(), "label": label.strip(), "value": num.strip()})
-    out["phrases"], out["values"] = phrases, values
+    for item in filter(None, (out.pop("requested_phrases", "") or "").split("|")):
+        tid, _, text = item.partition(":")
+        phrases.append({"team_id": tid.strip(), "phrase": text.strip()})
+    out["requested_phrases"] = phrases
     return out
 
 
@@ -204,8 +242,8 @@ def load(path: str | Path) -> list[DecodeRequest]:
         if isinstance(raws, dict):
             raws = [raws]
     requests = [parse_request(r) for r in raws]
-    ids = [r.id for r in requests]
+    ids = [r.decode_id for r in requests]
     dupes = sorted({i for i in ids if ids.count(i) > 1})
     if dupes:
-        raise InputError(f"duplicate decode ids: {', '.join(dupes)}")
+        raise InputError(f"duplicate decodes (event_id + player_id): {', '.join(dupes)}")
     return requests

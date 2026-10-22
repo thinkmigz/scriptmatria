@@ -1,0 +1,132 @@
+{
+  "registry": "phrases",
+  "league": "MLB",
+  "phrase_registry_version": "0.1.0",
+  "scope": "city, nickname, city+nickname (no abbreviations; IDs are not phrases)",
+  "provenance": "Operator-attested draft, 2026-10-22. Verify each spelling against the club's official name before production use.",
+  "notes": {
+    "ATH": "The Athletics have no official city name while between Oakland and Las Vegas; only the nickname phrase is used (it doubles as the full name)."
+  },
+  "teams": {
+    "ARI": {
+      "city": "Arizona",
+      "nickname": "Diamondbacks"
+    },
+    "ATH": {
+      "city": null,
+      "nickname": "Athletics"
+    },
+    "ATL": {
+      "city": "Atlanta",
+      "nickname": "Braves"
+    },
+    "BAL": {
+      "city": "Baltimore",
+      "nickname": "Orioles"
+    },
+    "BOS": {
+      "city": "Boston",
+      "nickname": "Red Sox"
+    },
+    "CHC": {
+      "city": "Chicago",
+      "nickname": "Cubs"
+    },
+    "CIN": {
+      "city": "Cincinnati",
+      "nickname": "Reds"
+    },
+    "CLE": {
+      "city": "Cleveland",
+      "nickname": "Guardians"
+    },
+    "COL": {
+      "city": "Colorado",
+      "nickname": "Rockies"
+    },
+    "CWS": {
+      "city": "Chicago",
+      "nickname": "White Sox"
+    },
+    "DET": {
+      "city": "Detroit",
+      "nickname": "Tigers"
+    },
+    "HOU": {
+      "city": "Houston",
+      "nickname": "Astros"
+    },
+    "KC": {
+      "city": "Kansas City",
+      "nickname": "Royals"
+    },
+    "LAA": {
+      "city": "Los Angeles",
+      "nickname": "Angels"
+    },
+    "LAD": {
+      "city": "Los Angeles",
+      "nickname": "Dodgers"
+    },
+    "MIA": {
+      "city": "Miami",
+      "nickname": "Marlins"
+    },
+    "MIL": {
+      "city": "Milwaukee",
+      "nickname": "Brewers"
+    },
+    "MIN": {
+      "city": "Minnesota",
+      "nickname": "Twins"
+    },
+    "NYM": {
+      "city": "New York",
+      "nickname": "Mets"
+    },
+    "NYY": {
+      "city": "New York",
+      "nickname": "Yankees"
+    },
+    "PHI": {
+      "city": "Philadelphia",
+      "nickname": "Phillies"
+    },
+    "PIT": {
+      "city": "Pittsburgh",
+      "nickname": "Pirates"
+    },
+    "SD": {
+      "city": "San Diego",
+      "nickname": "Padres"
+    },
+    "SEA": {
+      "city": "Seattle",
+      "nickname": "Mariners"
+    },
+    "SF": {
+      "city": "San Francisco",
+      "nickname": "Giants"
+    },
+    "STL": {
+      "city": "St. Louis",
+      "nickname": "Cardinals"
+    },
+    "TB": {
+      "city": "Tampa Bay",
+      "nickname": "Rays"
+    },
+    "TEX": {
+      "city": "Texas",
+      "nickname": "Rangers"
+    },
+    "TOR": {
+      "city": "Toronto",
+      "nickname": "Blue Jays"
+    },
+    "WSH": {
+      "city": "Washington",
+      "nickname": "Nationals"
+    }
+  }
+}

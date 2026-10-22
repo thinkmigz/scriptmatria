@@ -1,17 +1,14 @@
 # scriptmatria
 
-The Zilla 3.0 decoding engine. It is lite, deterministic and **TAG-ONLY**.
+The **Zilla 3.0** player-milestone decoding engine. It is deterministic, auditable and **TAG-ONLY**.
 
-You give it an athlete, a game date and a stat milestone. It runs every athlete through the same calculations, in the same order, under the same versioned rules, and returns an auditable ritual decode:
-- every match with its formula, source and rule
-- every miss
-- a Triple Prime Sync status
-- a control test
-- an Excel sheet
+You give it one athlete, one cumulative career stat, one event and one opponent. It runs every comparison allowed by a versioned rule registry, in a fixed order, and records every comparison with a status, hit or miss. Then it seals a report that can be replayed byte-for-byte.
 
-**[ZILLA_3_RULEBOOK.md](ZILLA_3_RULEBOOK.md) is the authority** on what counts as a valid match. The registry it describes is [`scriptmatria/registry/rules_v2.json`](scriptmatria/registry/rules_v2.json).
+- **Authority:** [ZILLA_3_RULEBOOK.md](ZILLA_3_RULEBOOK.md) (v0.2, merged draft). Its registry is [`rules_v3.json`](scriptmatria/registry/rules_v3.json), and the approved phrases are in [`phrases_mlb.json`](scriptmatria/registry/phrases_mlb.json).
+- **Input contract:** [`input.schema.json`](input.schema.json) (PlayerMilestoneInput v0.1).
+- **Legacy sources:** [`legacy_source_manifest.md`](legacy_source_manifest.md). The existing Zilla installation is not touched by this project.
 
-> Alignments are mathematical observations, not predictions. No rule here has demonstrated predictive value; that belongs to a separate research process (Phase 2+).
+> Alignments are mathematical observations, not predictions. No rule here has demonstrated predictive value. Rarity controls live in the separate research lab, and scoring is deferred until prospective evidence justifies it.
 
 ## Install
 
@@ -22,91 +19,79 @@ python3 -m pip install -e ".[test]"   # Python 3.11+, no runtime dependencies
 ## Use
 
 ```bash
-scriptmatria decode examples/mlb_career_hr.json --out decodes --print   # first reference case
-scriptmatria decode examples/sample_decodes.csv
+scriptmatria decode examples/mlb_pilot.json --print            # seal reports into reports/
+scriptmatria research control examples/mlb_pilot.json          # rarity control, research/ only
+scriptmatria grade MLB-2026-10-21-FIXTURE-PA_FICTIONAL-A --outcome achieved --actual 23
 scriptmatria gematria "Mercury"
-scriptmatria grade mlb-fictional-player-a-hr23 --achieved yes --actual 23
 ```
 
-`decode` writes these files to `decodes/`:
+**Files written per decode** (`reports/<event_id>_<player_id>.*`):
 
-| File | What it is |
+| File | Contents |
 | --- | --- |
-| `<id>.md` | Decode grid, decode status, finding, dependent and pending hits, comparison ledger |
-| `<id>.json` | Full audit: inputs and `input_sha256`, registry version, every comparison, classification, control test |
-| `<id>.vN.json/.md` | An amendment, written when inputs or rules change. Earlier versions are never overwritten. |
-| `freeze_ledger.jsonl` | Append-only log of every freeze, with timestamp and hashes |
-| `outcomes.jsonl` | Append-only grades from `scriptmatria grade`. These never touch a decode. |
-| `summary.csv`, `grid.csv`, `decodes.xlsx` | Spreadsheet views of the run. The xlsx has three sheets: Summary, Grid and Evidence. |
+| `.json` | the canonical decode: input snapshot, versions, seal hashes, cards, gematria table, grid, classification, every comparison |
+| `.md` | the readable report, in the rulebook §9 order: input summary, date/birthday card, gematria table, relationship grid, Prime Cluster/Triple Prime, symbolic overlay, audit block, ritual note |
+| `.csv` | the Excel-ready relationship grid |
+| `.ledger.jsonl` | the comparison ledger, one evidence record per comparison |
+| `.vN.*` | a linked revision when a corrected snapshot is decoded; earlier versions are never overwritten |
 
-Identical inputs and the same rule version always give byte-identical reports.
+**Files written per run:**
 
-## The 10-step workflow
+| File | Contents |
+| --- | --- |
+| `freeze_ledger.jsonl` | an append-only seal log with hashes, `created_at_utc`, `event_start_utc` and `sealed_before_event_start` |
+| `outcomes.jsonl` | an append-only log of grades: ACHIEVED, NOT_ACHIEVED or UNRESOLVED |
+| `summary.csv` | one summary row per decode |
+| `decodes.xlsx` | Summary, Relationships and Evidence sheets |
 
-1. **Input lock:** inputs are validated and hashed. Missing data is never inferred.
-2. **Number generation:**
-   - birthday spans
-   - date card: DN1–DN5, DOY, days left, weekday and ruling planet
-   - five-cipher gematria (EO, FR, RO, RR, CH)
-   - primes
-3. **Relationship detection:** prime and reverse prime, PIGR-A and PIGR-B (independent), Type A, jersey, birthday, DN, and weekday and planet gematria.
-4. **Ritual overlay:**
-   - Skull & Bones and Jesuit keyword lanes
-   - moon phase (Meeus true phases, timezone- and time-aware)
-   - zodiac season tag
-5. **Validation:**
-   - Bare supplied numbers are *source pending* and don't count.
-   - Restated numbers are flagged as dependent.
-   - Triple Prime Sync needs 3 families on 3 numbers.
-6. **Control test:** the same sources are decoded against milestones M ± 10. The result is descriptive rarity.
-7. **Output:** grid, summary row and decode status.
-8. **Freeze:** reports are written once. Changes become amendments.
-9. **Grade:** outcomes go to a separate append-only ledger.
-10. **Learn:** the research engine is not part of this tool.
+## Statuses
 
-## Reference case: MLB career home runs
+| Status | Meaning |
+| --- | --- |
+| `QUALIFIED_STRUCTURAL` | exact hit of a structural rule (M-PRIME, M-REVPRIME, PIGR-A/B, OPP-TYPEA, SELF-TYPEA) |
+| `QUALIFIED_CALENDAR` | exact hit of DN-EXACT, DAY-GEM, PLANET-GEM or BIRTH-SPAN-EXACT |
+| `SYMBOLIC_NOTE` | JERSEY-EXACT, or KW-EXACT (keywords, opt-in); never structural evidence |
+| `NO_HIT` | compared, no match |
+| `INVALID` | a phrase outside the approved registry or outside this event |
+| `UNVERIFIED` | an input is missing, or a rule is pending (for example a Feb 29 birthday in a non-leap year) |
+| `RULE_CONFLICT` | the snapshot cites a different phrase-registry version; the match is withheld |
 
-`examples/mlb_career_hr.json` describes Fictional Player A:
-- born 2000-06-01, wears jersey #23
-- playing on 2026-10-21
-- going for career HR #23
-- the opponent gematria, 83, is supplied without its phrase
+**Prime Cluster** reports `CANDIDATE` when there are 3 or more prime observations, always flagged `DEPENDENCY_REVIEW_REQUIRED`. **Triple Prime Sync** is `NOT_EVALUATED` until its independence rule is approved.
 
-| Test | Finding | Result |
+## Pilot (MLB career HR, fictional athlete)
+
+`examples/mlb_pilot.json` describes this pilot:
+- Fictional Player A, NYY vs BOS
+- event 2026-10-21 at 19:05 ET
+- career HR 22 → 23
+- born 2000-06-01, jersey #23
+- overlays: keywords, moon and zodiac
+
+| Rule | Derivation | Status |
 | --- | --- | --- |
-| Prime milestone | 23 is the 9th prime | ✓ Exact |
-| PIGR-B | 83 is the 23rd prime (needs its phrase and cipher) | Source pending |
-| Jersey | jersey = 23 = milestone 23 | ✓ Exact |
-| Weekday | Wednesday · ruled by Mercury | Tag |
-| Weekday & planet gematria | planet 'Mercury' (CH) = 23 = milestone 23 | ✓ Exact |
-| Symbolic codes | DN2 = 41 and Mercury (RR) = 41, Skull and Bones numbers | ✓ Exact |
-| Triple Prime Sync | 1 verified prime hit from 1 family | Not qualified |
+| M-PRIME | 23 is the 9th prime | Qualified (structural) |
+| M-REVPRIME | reverse_digits(23) = 32, not prime | No hit |
+| PLANET-GEM | planet 'Mercury' (CH) = 23 = M | Qualified (calendar) |
+| JERSEY-EXACT | jersey #23 = 23 = M | Symbolic note |
+| KW-EXACT | DN2 = 41 and Mercury (RR) = 41, Skull and Bones code | Symbolic note |
+| Triple Prime Sync | — | NOT_EVALUATED |
 
-The decode status is **Partial, source verification required**. The three hits on 23 (prime milestone, jersey and Mercury CH) are listed as dependent: they are one number, not three confirmations.
+**Birthday card:** 9,638 days; age 26y 4m 20d; 142 days since and 223 until the birthday.
+**Date card:** DN 77/41/14/57/12, day 294, 71 days left, Wednesday / Mercury.
+**Moon:** Waxing Gibbous, age 11.3 days at first pitch.
+**Dependencies:** the 23s (prime milestone, jersey, Mercury CH) are listed as one dependent number, not three confirmations.
 
-## Input
+The roadmap's math fixture is in `tests/fixtures/memphis_pilot.json`. There, "Memphis" EO = 83 is the 23rd prime, so PIGR-B qualifies and PIGR-A does not. Run it with `--phrases tests/fixtures/phrases_fixture.json`.
 
-JSON is either `{"decodes": [...]}` or a list. CSV uses the same column names, written as `phrases` = `entity:phrase|...` and `values` = `entity:label=value|...`.
+## Module map (Phase 1 deliverables)
 
-```json
-{
-  "id": "mlb-fictional-player-a-hr23",
-  "player": "Fictional Player A",
-  "stat_category": "career HR",
-  "milestone_type": "cumulative",
-  "current": 22,
-  "milestone": 23,
-  "birthday": "2000-06-01",
-  "jersey": 23,
-  "event_date": "2026-10-21",
-  "timezone": "America/New_York",
-  "event_time": "19:05",
-  "opponent": "Hypothetical Opponent X",
-  "phrases": [{"entity": "opponent", "phrase": "Hypothetical Opponent X"}]
-}
-```
-
-The rulebook (§2) gives the full field contract. Use `phrases` for opponent names whenever you can. Bare `values` stay *source pending*.
+| Deliverable | Module |
+| --- | --- |
+| `zilla_math.py` | `gematria.py`, `primes.py` (cached sieve), `dates.py`, `astro.py` |
+| `relationship_engine.py` | `rules.py` (+ `phrases.py`) |
+| `signal_validator.py` | `validator.py` |
+| `decode_report.py` | `report.py`, `xlsx.py`, `grading.py` |
+| research lab | `control.py` |
 
 ## Tests
 
@@ -114,12 +99,12 @@ The rulebook (§2) gives the full field contract. Use `phrases` for opponent nam
 python3 -m pytest
 ```
 
-The suite contains the Phase 1 readiness checks (rulebook §10). These cover the math reference cases, independent PIGR, leap-year birthdays, duplicate handling, Triple Prime Sync qualification, byte-identical reproducibility, and a lock that fails if the rulebook and registry disagree.
+The suite covers the rulebook §12 acceptance gates and all the roadmap Phase 6 fixtures:
+- Memphis PIGR-B, a no-match player, missing birthday, duplicate alias, conflicting dates and non-leap Feb 29
+- a source outside the event, no authorized opponent phrase, PIGR-C invalid, a registry conflict and a corrected-snapshot revision
+- CSV/JSON/MD reconciliation to the ledger, byte-identical replay, and a lock that fails if the rulebook, registry and schema disagree
 
 ## Roadmap
 
-- **Phase 1** (this repo): rulebook, math engine, relationship detector, signal validator, decode report.
-- **Phase 2:** historical replay and counterfactual testing.
-- **Phase 3:** automation, dashboards and Telegram.
-
-Predictive scoring is deferred until prospective evidence justifies it.
+- **Next:** the team-record adapter for game decodes like Hawks–Magic. It covers record transitions on both result paths, holds, regular-season scope and reciprocal head-to-head dedupe; rulebook §13 lists the open items.
+- **Later:** historical replay and counterfactual research, then automation and messaging (Telegram auth fail-closed, with no recalculation by a language model).

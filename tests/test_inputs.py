@@ -1,0 +1,67 @@
+import json
+
+import pytest
+
+from conftest import BASE, ROOT, snapshot
+from scriptmatria import inputs
+
+SCHEMA = json.loads((ROOT / "input.schema.json").read_text())
+
+
+def test_schema_matches_contract():
+    assert SCHEMA["required"] == list(inputs.REQUIRED)
+    snap = inputs.parse_request(snapshot()).to_dict()
+    derived = {"input_schema_version", "target_count"}
+    assert set(SCHEMA["properties"]) == set(snap) - derived
+    assert SCHEMA["properties"]["overlays"]["items"]["enum"] == list(inputs.OVERLAYS)
+    assert SCHEMA["title"].endswith(inputs.INPUT_SCHEMA_VERSION)
+
+
+def test_example_is_valid_and_target_is_derived():
+    req = inputs.parse_request(snapshot())
+    assert req.current_count == 22 and req.milestone == 23
+    assert req.decode_id == "MLB-2026-10-21-FIXTURE-PA_FICTIONAL-A"
+    assert req.milestone_id == "HR:career:23"
+
+
+@pytest.mark.parametrize("field", inputs.REQUIRED)
+def test_missing_required_fields_fail_clearly(field):
+    raw = {k: v for k, v in BASE.items() if k != field}
+    with pytest.raises(inputs.InputError, match=f"{field}: required"):
+        inputs.parse_request(raw)
+
+
+def test_missing_optional_fields_are_allowed():
+    raw = snapshot(birth_date=None, jersey=None, event_start_local=None, overlays=None,
+                   birth_date_source=None, jersey_source=None, jersey_effective_date=None)
+    req = inputs.parse_request(raw)
+    assert req.birth_date is None and req.jersey is None and req.overlays == ()
+
+
+@pytest.mark.parametrize("overrides,message", [
+    ({"birth_date": "2027-01-01"}, "birth_date: after the event date"),
+    ({"current_count_as_of": "2026-10-22T10:00:00"}, "current_count_as_of: after the event date"),
+    ({"jersey_effective_date": "2026-11-01"}, "jersey_effective_date: after the event date"),
+    ({"opponent_id": "NYY"}, "opponent_id: must differ"),
+    ({"stat_scope": "season"}, "not implemented in v0.1"),
+    ({"current_count": -1}, "must not be negative"),
+    ({"timezone": "Mars/Olympus"}, "not an IANA timezone"),
+    ({"overlays": ["tarot"]}, "overlays: 'tarot'"),
+    ({"event_start_local": "7pm"}, "event_start_local"),
+])
+def test_conflicting_or_invalid_inputs_fail_the_lock(overrides, message):
+    with pytest.raises(inputs.InputError, match=message):
+        inputs.parse_request(snapshot(**overrides))
+
+
+def test_json_and_csv_agree():
+    (js,) = inputs.load(ROOT / "examples" / "mlb_pilot.json")
+    (cs,) = inputs.load(ROOT / "examples" / "mlb_pilot.csv")
+    assert js.to_dict() == cs.to_dict()
+
+
+def test_duplicate_decodes_rejected(tmp_path):
+    p = tmp_path / "dup.json"
+    p.write_text(json.dumps([BASE, BASE]))
+    with pytest.raises(inputs.InputError, match="duplicate"):
+        inputs.load(p)

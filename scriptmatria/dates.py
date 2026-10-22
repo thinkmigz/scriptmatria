@@ -1,55 +1,75 @@
 """Birthday spans and calendar codes.
 
 Each span is a distinct, labeled anchor; they are never substituted for one
-another. Convention for Feb 29 birthdays: in non-leap years the anniversary is
-observed on Feb 28.
+another. Feb 29 birthdays: observance in non-leap years is a pending rule
+(rulebook §13), so any span that depends on it is returned as None (UNVERIFIED)
+instead of being guessed.
 """
 
 import calendar
 from datetime import date
 
 
-def _anniversary(birth: date, year: int) -> date:
-    day = birth.day
-    if birth.month == 2 and day == 29 and not calendar.isleap(year):
-        day = 28
-    return date(year, birth.month, day)
+def _is_leapling(birth: date) -> bool:
+    return birth.month == 2 and birth.day == 29
 
 
-def _add_months(d: date, months: int) -> date:
+def _add_months(d: date, months: int) -> tuple[date, bool]:
+    """d plus whole months, and whether the day had to be clamped (e.g. Feb 29 -> Feb 28)."""
     y, m = divmod(d.month - 1 + months, 12)
     y += d.year
     m += 1
-    return date(y, m, min(d.day, calendar.monthrange(y, m)[1]))
+    last = calendar.monthrange(y, m)[1]
+    return date(y, m, min(d.day, last)), d.day > last
 
 
-def ymd(start: date, end: date) -> tuple[int, int, int]:
-    """Exact calendar years, months and remaining days from start to end."""
+def ymd(start: date, end: date) -> tuple[int, int, int] | None:
+    """Exact calendar years, months and remaining days from start to end, or None
+    when the answer depends on how a missing day (Feb 29) is observed."""
     if end < start:
         raise ValueError("end date precedes start date")
     months = (end.year - start.year) * 12 + (end.month - start.month)
-    if _add_months(start, months) > end:
+    anchor, clamped = _add_months(start, months)
+    if anchor > end:
         months -= 1
-    days = (end - _add_months(start, months)).days
-    return months // 12, months % 12, days
+        anchor, clamped = _add_months(start, months)
+    if clamped and _is_leapling(start):
+        return None
+    return months // 12, months % 12, (end - anchor).days
 
 
-def birthday_spans(birth: date, event: date) -> dict[str, int]:
-    years, months, days = ymd(birth, event)
-    last = _anniversary(birth, event.year)
-    if last > event:
-        last = _anniversary(birth, event.year - 1)
-    nxt = _anniversary(birth, last.year + 1)
-    if _anniversary(birth, event.year) == event:
-        nxt = event
+def _leapling_last_next(birth: date, event: date) -> tuple[date | None, date | None]:
+    """Most recent and next Feb 29 birthdays, or None where a non-leap year makes
+    the observed date ambiguous."""
+    y = event.year
+    if calendar.isleap(y) and event == date(y, 2, 29):
+        return event, event
+    ambiguous = not calendar.isleap(y) and date(y, 2, 28) <= event < date(y, 3, 1)
+    last_year = y if event >= date(y, 3, 1) else y - 1
+    next_year = y if event < date(y, 2, 28) or (calendar.isleap(y) and event < date(y, 2, 29)) else y + 1
+    last = date(last_year, 2, 29) if calendar.isleap(last_year) and not ambiguous else None
+    nxt = date(next_year, 2, 29) if calendar.isleap(next_year) and not ambiguous else None
+    return last, nxt
+
+
+def birthday_spans(birth: date, event: date) -> dict[str, int | None]:
+    """Spans from birth to the local event date. None means UNVERIFIED (Feb 29 pending).
+    An event-day birthday gives days_since = days_until = 0."""
     total = (event - birth).days
+    exact = ymd(birth, event)
+    if _is_leapling(birth):
+        last, nxt = _leapling_last_next(birth, event)
+    else:
+        this_year = date(event.year, birth.month, birth.day)
+        last = this_year if this_year <= event else date(event.year - 1, birth.month, birth.day)
+        nxt = this_year if this_year >= event else date(event.year + 1, birth.month, birth.day)
     return {
         "total_days": total,
-        "age_years": years,
-        "ymd_months": months,
-        "ymd_days": days,
-        "days_since_birthday": (event - last).days,
-        "days_until_birthday": (nxt - event).days,
+        "age_years": exact[0] if exact else None,
+        "ymd_months": exact[1] if exact else None,
+        "ymd_days": exact[2] if exact else None,
+        "days_since_birthday": (event - last).days if last else None,
+        "days_until_birthday": (nxt - event).days if nxt else None,
         "total_weeks": total // 7,
     }
 
