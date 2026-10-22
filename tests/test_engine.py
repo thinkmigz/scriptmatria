@@ -28,7 +28,7 @@ def test_fixture_no_match_player():
     res = decode(snapshot(current_count=59, jersey=None, birth_date=None, overlays=None))
     c = res["classification"]["counts"]
     assert c["qualified_structural"] == c["qualified_calendar"] == c["symbolic_notes"] == 0
-    assert c["attempted"] > 0 and res["classification"]["prime_cluster"] == "NONE"
+    assert c["attempted"] > 0 and not res["classification"]["triple_prime"]["found"]
 
 
 def test_fixture_missing_birthday():
@@ -135,12 +135,24 @@ def test_calendar_hits_and_weekday_planet_rules(pilot):
     assert planet["status"] == QC and planet["phrase"] == "Mercury" and planet["cipher"] == "CH"
 
 
-def test_triple_prime_not_evaluated_and_cluster_flagged():
+def test_triple_prime_found_and_shown():
     res = decode(snapshot(MEMPHIS, jersey=9))  # M-PRIME, PIGR-B (Memphis), PIGR-A (jersey 9)
-    cls = res["classification"]
-    assert cls["prime_observations"] >= 3
-    assert cls["prime_cluster"] == "CANDIDATE" and cls["prime_cluster_flag"] == "DEPENDENCY_REVIEW_REQUIRED"
-    assert cls["triple_prime_sync"] == "NOT_EVALUATED"
+    tp = res["classification"]["triple_prime"]
+    assert tp["found"] and len(tp["relationships"]) >= 3
+    assert "23 is the 9th prime" in tp["relationships"]
+    from scriptmatria import report
+    md = report.to_markdown(res)
+    assert "TRIPLE PRIME" in md and "TRIPLE PRIME" in res["ritual_note"]
+    assert res["summary"]["Triple Prime"].startswith("FOUND")
+
+
+def test_triple_prime_silent_when_not_found(pilot):
+    from scriptmatria import report
+    assert not pilot["classification"]["triple_prime"]["found"]
+    md = report.to_markdown(pilot)
+    assert "TRIPLE PRIME" not in md and "Triple Prime" not in md
+    assert "Triple" not in pilot["ritual_note"] and "TRIPLE" not in pilot["ritual_note"]
+    assert pilot["summary"]["Triple Prime"] == ""
 
 
 def test_dependent_restatements_grouped(pilot):

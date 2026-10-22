@@ -30,7 +30,7 @@ scriptmatria gematria "Mercury"
 | File | Contents |
 | --- | --- |
 | `.json` | the canonical decode: input snapshot, versions, seal hashes, cards, gematria table, grid, classification, every comparison |
-| `.md` | the readable report, in the rulebook §9 order: input summary, date/birthday card, gematria table, relationship grid, Prime Cluster/Triple Prime, symbolic overlay, audit block, ritual note |
+| `.md` | the readable report, in the rulebook §9 order: input summary, date/birthday card, gematria table, relationship grid, TRIPLE PRIME (when found), symbolic overlay, audit block, ritual note |
 | `.csv` | the Excel-ready relationship grid |
 | `.ledger.jsonl` | the comparison ledger, one evidence record per comparison |
 | `.vN.*` | a linked revision when a corrected snapshot is decoded; earlier versions are never overwritten |
@@ -56,7 +56,7 @@ scriptmatria gematria "Mercury"
 | `UNVERIFIED` | an input is missing, or a rule is pending (for example a Feb 29 birthday in a non-leap year) |
 | `RULE_CONFLICT` | the snapshot cites a different phrase-registry version; the match is withheld |
 
-**Prime Cluster** reports `CANDIDATE` when there are 3 or more prime observations, always flagged `DEPENDENCY_REVIEW_REQUIRED`. **Triple Prime Sync** is `NOT_EVALUATED` until its independence rule is approved.
+**TRIPLE PRIME** is shown when a decode has 3 or more qualified prime relationships, with each relationship listed. With fewer, nothing is shown.
 
 ## Pilot (MLB career HR, fictional athlete)
 
@@ -74,7 +74,6 @@ scriptmatria gematria "Mercury"
 | PLANET-GEM | planet 'Mercury' (CH) = 23 = M | Qualified (calendar) |
 | JERSEY-EXACT | jersey #23 = 23 = M | Symbolic note |
 | KW-EXACT | DN2 = 41 and Mercury (RR) = 41, Skull and Bones code | Symbolic note |
-| Triple Prime Sync | — | NOT_EVALUATED |
 
 **Birthday card:** 9,638 days; age 26y 4m 20d; 142 days since and 223 until the birthday.
 **Date card:** DN 77/41/14/57/12, day 294, 71 days left, Wednesday / Mercury.

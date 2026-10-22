@@ -57,7 +57,8 @@ def test_required_inputs_listed():
 def test_statuses_and_decisions_listed():
     for status in REGISTRY["statuses"]:
         assert f"`{status}`" in RULEBOOK, status
-    assert "NOT_EVALUATED" in RULEBOOK and "DEPENDENCY_REVIEW_REQUIRED" in RULEBOOK
+    assert "**TRIPLE PRIME:**" in RULEBOOK and "NOT_EVALUATED" not in RULEBOOK
+    assert "| 5 | Triple Prime | **Decided:**" in RULEBOOK
     assert "**Decided:** manual or approved adapter with operator sign-off" in RULEBOOK
     for adapter in REGISTRY["approved_adapters"]:
         assert f"`{adapter}`" in RULEBOOK

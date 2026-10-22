@@ -1,5 +1,5 @@
 {
-  "registry_version": "3.4.0",
+  "registry_version": "3.5.0",
   "rulebook_version": "0.2",
   "mode": "TAG-ONLY",
   "notes": "Player-milestone registry for the Zilla 3.0 pilot (MLB career HR). Merges ZILLA_3_MASTER_RULEBOOK_v0.1_DRAFT with the approved section 13 decisions of 2026-10-22. rules_v1.json and rules_v2.json are kept unchanged as history.",
@@ -17,7 +17,8 @@
     "3.1.0: stat codes are registered. HR is the approved pilot stat; H and RBI are trial stats, labeled in every output.",
     "3.2.0: source policy is manual or an approved adapter with operator sign-off; mlb-statsapi@0.1.0 approved.",
     "3.3.0: stat_scope 'postseason' (trial) = career postseason totals, all rounds and years, as of before the event; re-snapshotted before every game.",
-    "3.4.0: replaced the unused 'postseason' scope with 'combined' (trial) = career regular season + career postseason, with both parts recorded and required to sum to current_count."
+    "3.4.0: replaced the unused 'postseason' scope with 'combined' (trial) = career regular season + career postseason, with both parts recorded and required to sum to current_count.",
+    "3.5.0: TRIPLE PRIME is shown when a decode has 3 or more qualified prime relationships (M-PRIME, M-REVPRIME, PIGR-A, PIGR-B) and is not shown otherwise; Prime Cluster and NOT_EVALUATED removed."
   ],
   "statuses": {
     "QUALIFIED_STRUCTURAL": "exact hit of a structural rule from a verified source",
@@ -33,7 +34,7 @@
     "pilot_stat": "MLB career HR (approved); career H and RBI as trial stats",
     "phrase_scope": "city, nickname, city+nickname; no abbreviations",
     "leap_day_birthdays": "pending: birthday-anchored spans UNVERIFIED in non-leap years",
-    "triple_prime_sync": "NOT_EVALUATED (rule to be added later)",
+    "triple_prime_sync": "shown when 3+ qualified prime relationships are found; no separate independence rule (2026-10-22)",
     "weekday_planet_gematria": "kept as calendar rules (DAY-GEM, PLANET-GEM)",
     "pigr_sources": "every eligible source value (phrase gematria, jersey, birthday spans, calendar codes, weekday/planet gematria); each hit names its source family",
     "experimental_bridges": "off (concat, SACB/EACB, power-chain, square/Fibonacci, mirrors)",

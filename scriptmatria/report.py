@@ -116,7 +116,9 @@ def _note(req: inputs.DecodeRequest, records: list[dict], cls: dict) -> str:
     s = names(SN)
     if s:
         parts.append(f"symbolic notes: {', '.join(s)}")
-    parts.append(f"Triple Prime Sync {cls['triple_prime_sync'].replace('_', ' ').lower()}")
+    if cls["triple_prime"]["found"]:
+        parts.append(f"TRIPLE PRIME ({len(cls['triple_prime']['relationships'])}): "
+                     + "; ".join(cls["triple_prime"]["relationships"]))
     return "; ".join(parts) + ". Descriptive only; not an outcome pick."
 
 
@@ -171,7 +173,7 @@ SUMMARY_COLUMNS = [
     "Decode ID", "Event ID", "Event date", "League", "Player ID", "Player", "Team", "Opponent", "Stat",
     "Current", "Target", "Count as of", "Prime index", "Reverse prime", "PIGR-A", "PIGR-B", "Opponent Type A",
     "Self Type A", "Birthday match", "Date match", "Weekday / planet", "Jersey", "Keywords", "Moon", "Zodiac",
-    "Prime Cluster", "Triple Prime", "Attempted", "Qualified", "Symbolic", "Invalid", "Unverified",
+    "Triple Prime", "Attempted", "Qualified", "Symbolic", "Invalid", "Unverified",
     "Decode status", "Rule registry",
 ]
 
@@ -211,8 +213,8 @@ def summary_row(res: dict) -> dict:
         "Keywords": _lane(recs, "KW-EXACT") if "keywords" in inp["overlays"] else "off",
         "Moon": (moon.get("phase") or moon.get("status")) if moon else "off",
         "Zodiac": ov["zodiac"]["event_sun_sign"] if "zodiac" in ov else "off",
-        "Prime Cluster": cls["prime_cluster"] + (f" ({cls['prime_cluster_flag']})" if cls["prime_cluster_flag"] else ""),
-        "Triple Prime": cls["triple_prime_sync"],
+        "Triple Prime": (f"FOUND ({len(cls['triple_prime']['relationships'])})"
+                         if cls["triple_prime"]["found"] else ""),
         "Attempted": c["attempted"], "Qualified": c["qualified_structural"] + c["qualified_calendar"],
         "Symbolic": c["symbolic_notes"], "Invalid": c["invalid"], "Unverified": c["unverified"],
         "Decode status": res["decode_status"], "Rule registry": res["versions"]["rule_registry_version"],
@@ -273,15 +275,9 @@ def to_markdown(res: dict) -> str:
     lines += _md_table(GRID_COLUMNS, [[r["Rule"], r["LHS"], r["RHS"], r["Derivation"], STATUS_LABEL[r["Status"]],
                                        r["Source"]] for r in res["grid"]])
 
-    lines += ["", "## 5. Prime cluster and Triple Prime", "",
-              f"- Prime observations: {cls['prime_observations']} from {', '.join(cls['prime_families']) or 'none'}",
-              f"- Prime Cluster: **{cls['prime_cluster']}**"
-              + (f" — {cls['prime_cluster_flag']}" if cls["prime_cluster_flag"] else ""),
-              f"- Triple Prime Sync: **{cls['triple_prime_sync']}** — {cls['triple_prime_reason']}"]
-    deps = [d for d in cls["dependency_groups"] if d["dependent"]]
-    if deps:
-        lines += ["- Dependent restatements (one number, not independent evidence):"]
-        lines += [f"  - **{d['number']}**: {', '.join(d['hits'])}" for d in deps]
+    if cls["triple_prime"]["found"]:
+        lines += ["", f"## 5. TRIPLE PRIME ({len(cls['triple_prime']['relationships'])} prime relationships)", ""]
+        lines += [f"- {c}" for c in cls["triple_prime"]["relationships"]]
 
     lines += ["", "## 6. Symbolic overlay", ""]
     notes = [r for r in res["records"] if r["status"] == SN]
@@ -303,6 +299,10 @@ def to_markdown(res: dict) -> str:
                         "Invalid", "Unverified", "Rule conflict"],
                        [[c["attempted"], c["qualified_structural"], c["qualified_calendar"], c["symbolic_notes"],
                          c["no_hit"], c["invalid"], c["unverified"], c["rule_conflict"]]])
+    deps = [d for d in cls["dependency_groups"] if d["dependent"]]
+    if deps:
+        lines += ["", "Same number under several labels:"]
+        lines += [f"- **{d['number']}**: {', '.join(d['hits'])}" for d in deps]
     lines += ["", f"Versions: engine {v['engine_version']} · rulebook {v['rulebook_version']} · rules "
               f"{v['rule_registry_version']} · phrases {v['phrase_registry_version']} · input schema "
               f"{v['input_schema_version']}",

@@ -1,7 +1,6 @@
 """Signal validator (rulebook §7). Counts statuses, groups dependent hits, and
-reports Prime Cluster / Triple Prime status. Symbolic notes never count as
-structural evidence; Triple Prime Sync is NOT_EVALUATED until its rule is locked.
-"""
+finds Triple Prime: 3 or more qualified prime relationships in one decode.
+Symbolic notes never count as structural evidence."""
 
 from collections import Counter, defaultdict
 
@@ -27,7 +26,6 @@ def classify(records: list[dict]) -> dict:
 
     families = sorted({_family(r) for r in qualified})
     prime_families = sorted({_family(r) for r in prime_obs})
-    cluster = len(prime_obs) >= 3
     return {
         "counts": {
             "attempted": sum(statuses[s] for s in COMPARED),
@@ -45,10 +43,8 @@ def classify(records: list[dict]) -> dict:
         "dependency_groups": groups,
         "prime_observations": len(prime_obs),
         "prime_families": prime_families,
-        "prime_cluster": "CANDIDATE" if cluster else "NONE",
-        "prime_cluster_flag": "DEPENDENCY_REVIEW_REQUIRED" if cluster else None,
-        "triple_prime_sync": "NOT_EVALUATED",
-        "triple_prime_reason": "independence rule not yet locked (rulebook §13 item 5)",
+        "triple_prime": {"found": len(prime_obs) >= 3,
+                         "relationships": [r["computation"] for r in prime_obs]},
     }
 
 

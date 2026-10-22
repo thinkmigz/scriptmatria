@@ -26,7 +26,7 @@ def test_pilot_reference_values(pilot):
     assert gematria.all_values("Wednesday") == {"EO": 100, "FR": 37, "RO": 143, "RR": 44, "CH": 34}
     assert pilot["seal"]["event_start_utc"] == "2026-10-21T23:05:00+00:00"
     assert pilot["overlays"]["moon"]["phase"] == "Waxing Gibbous"
-    assert pilot["classification"]["triple_prime_sync"] == "NOT_EVALUATED"
+    assert pilot["classification"]["triple_prime"] == {"found": False, "relationships": ["23 is the 9th prime"]}
 
 
 def test_csv_json_markdown_reconcile_to_ledger(pilot):
@@ -118,7 +118,7 @@ def test_xlsx_workbook(tmp_path):
         wb = z.read("xl/workbook.xml").decode()
         summary = z.read("xl/worksheets/sheet1.xml").decode()
     assert all(f'name="{n}"' in wb for n in ("Summary", "Relationships", "Evidence"))
-    assert "NOT_EVALUATED" in summary and "Wednesday / Mercury" in summary
+    assert "NOT_EVALUATED" not in summary and "Wednesday / Mercury" in summary
 
 
 def test_deliverable_modules_exist():

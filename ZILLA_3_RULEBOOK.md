@@ -1,6 +1,6 @@
 # Zilla 3.0 Master Decoding Rulebook
 
-**Version:** v0.2 — merged draft · **Rule registry:** v3.4.0 (`scriptmatria/registry/rules_v3.json`) · **Mode:** TAG-ONLY
+**Version:** v0.2 — merged draft · **Rule registry:** v3.5.0 (`scriptmatria/registry/rules_v3.json`) · **Mode:** TAG-ONLY
 **Primary track:** individual athlete statistical milestones · **Pilot:** MLB career home runs
 
 > **Governance.** This is the player-milestone successor contract. It merges `ZILLA_3_MASTER_RULEBOOK_v0.1_DRAFT.md` (2026-10-21) with the §13 decisions approved on 2026-10-22, and replaces the repo's earlier v2 rulebook.
@@ -209,9 +209,7 @@ Each comparison has exactly one status:
 - **Duplicate phrases:** two phrases that normalize to the same letters are computed once, with their aliases kept. Athletics is both nickname and full name.
 - **Counts:** reported separately as attempted, qualified (structural and calendar), symbolic, no-hit, invalid, unverified and rule conflict.
 
-**`PRIME_CLUSTER`:** 3 or more qualified prime observations, which may be dependent. The value is `CANDIDATE` and is always flagged `DEPENDENCY_REVIEW_REQUIRED`.
-
-**`TRIPLE_PRIME_SYNC`:** **NOT_EVALUATED** (decided: the rule will be added later). The word "triple" is never generated just because three labels appear.
+**TRIPLE PRIME:** a decode with **3 or more qualified prime relationships** (M-PRIME, M-REVPRIME, PIGR-A or PIGR-B) shows **TRIPLE PRIME** with each relationship listed. With fewer than 3, nothing is shown. There is no separate independence rule. "Same number under several labels" is listed in the audit block as information only.
 
 ## 8. Comparison universe and anti-cherry-pick protection
 
@@ -228,7 +226,7 @@ Each decode emits, in order:
 2. a date and birthday card with labeled units
 3. a gematria table for the authorized phrases
 4. a relationship grid: rule, LHS, RHS, derivation, status and source
-5. the Prime Cluster and Triple Prime status, with dependencies
+5. TRIPLE PRIME, when found
 6. the symbolic overlay
 7. an audit block: counts, versions, hashes and overlays not requested
 8. a one-sentence descriptive ritual note, never a pick
@@ -299,7 +297,7 @@ Old decodes keep the versions they were sealed under.
 | 2 | Pilot stat | **Decided:** MLB career HR (approved); career H and RBI as **trial** stats (2026-10-22, World Series test); `combined` (regular season + postseason) scope added as **trial** (2026-10-22) |
 | 3 | Opponent phrase scope | **Decided:** city, nickname and city+nickname; no abbreviations |
 | 4 | Leap-day birthdays / lunar time source | **Decided:** Feb 29 pending (fail closed); moon needs the event start time (Meeus ch. 49) |
-| 5 | Triple Prime Sync independence rule | **Pending:** NOT_EVALUATED, to be added later |
+| 5 | Triple Prime | **Decided:** shown when 3+ qualified prime relationships are found (2026-10-22) |
 | 6 | Experimental bridges for research mode | **Pending:** all OFF |
 | 7 | Labeling one number from several dependent sources | **Interim:** grouped as "dependent restatements"; one number is one observation |
 
