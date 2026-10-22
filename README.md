@@ -108,3 +108,15 @@ The suite covers the rulebook §12 acceptance gates and all the roadmap Phase 6 
 
 - **Next:** the team-record adapter for game decodes like Hawks–Magic. It covers record transitions on both result paths, holds, regular-season scope and reciprocal head-to-head dedupe; rulebook §13 lists the open items.
 - **Later:** historical replay and counterfactual research, then automation and messaging (Telegram auth fail-closed, with no recalculation by a language model).
+
+## Stat codes
+
+`HR` is the approved pilot stat. `H` and `RBI` are **trial** stats: they decode normally but are labeled `trial` in the summary, the ritual note and the decode status. Any other `stat_code` is rejected.
+
+## World Series 2026 Game 1 (Rays @ Brewers, 2026-10-23)
+
+`examples/ws2026_g1_template.csv` holds 6 players × 3 stats (HR, H, RBI). Event, time, teams and overlays are prefilled. The operator fills in `current_count`, `current_count_as_of`, `current_count_source`, `birth_date`, `jersey` and `operator_attestation`, plus the names of the open player slots. Then run:
+
+```bash
+scriptmatria decode examples/ws2026_g1_template.csv --out reports/ws2026_g1
+```

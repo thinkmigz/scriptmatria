@@ -57,7 +57,12 @@
     },
     "stat_code": {
       "type": "string",
-      "description": "e.g. HR"
+      "enum": [
+        "HR",
+        "H",
+        "RBI"
+      ],
+      "description": "HR = approved pilot stat; H and RBI = trial stats"
     },
     "stat_scope": {
       "type": "string",

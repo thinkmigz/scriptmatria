@@ -59,3 +59,9 @@ def test_statuses_and_decisions_listed():
         assert f"`{status}`" in RULEBOOK, status
     assert "NOT_EVALUATED" in RULEBOOK and "DEPENDENCY_REVIEW_REQUIRED" in RULEBOOK
     assert "**Decided:** manual only" in RULEBOOK
+
+
+def test_pilot_stats_match():
+    listed = ", ".join(f"{c} ({s})" for c, s in REGISTRY["pilot_stats"].items())
+    assert f"**Pilot stats:** {listed}." in RULEBOOK
+    assert inputs.STAT_CODES == REGISTRY["pilot_stats"]

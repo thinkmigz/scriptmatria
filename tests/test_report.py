@@ -125,3 +125,12 @@ def test_deliverable_modules_exist():
     from scriptmatria import decode_report, relationship_engine, signal_validator, zilla_math
     assert zilla_math.nth_prime(23) == 83 and zilla_math.prime_index(23) == 9
     assert relationship_engine.evaluate and signal_validator.classify and decode_report.decode
+
+
+def test_trial_stats_are_labeled(pilot):
+    assert pilot["decode_status"] == "Complete" and "trial" not in pilot["ritual_note"]
+    hits = decode(snapshot(stat_code="H", current_count=499))
+    assert hits["decode_status"].startswith("Partial: trial stat")
+    assert "trial stat, outside the approved pilot" in hits["ritual_note"]
+    assert hits["summary"]["Stat"] == "H (career, trial)"
+    assert "H (trial)" in report.to_markdown(hits)

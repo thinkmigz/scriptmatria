@@ -1,0 +1,19 @@
+event_id,event_date_local,timezone,event_start_local,league,player_id,player_name,team_id,opponent_id,stat_code,stat_scope,current_count,current_count_as_of,current_count_source,birth_date,birth_date_source,jersey,jersey_source,phrase_registry_version,operator_attestation,overlays
+MLB-2026-10-23-TB-MIL,2026-10-23,America/Chicago,19:00,MLB,caminero-junior,Junior Caminero,TB,MIL,HR,career,,,,,,,,0.1.0,,keywords|moon|zodiac
+MLB-2026-10-23-TB-MIL,2026-10-23,America/Chicago,19:00,MLB,caminero-junior,Junior Caminero,TB,MIL,H,career,,,,,,,,0.1.0,,keywords|moon|zodiac
+MLB-2026-10-23-TB-MIL,2026-10-23,America/Chicago,19:00,MLB,caminero-junior,Junior Caminero,TB,MIL,RBI,career,,,,,,,,0.1.0,,keywords|moon|zodiac
+MLB-2026-10-23-TB-MIL,2026-10-23,America/Chicago,19:00,MLB,rays-player-2,,TB,MIL,HR,career,,,,,,,,0.1.0,,keywords|moon|zodiac
+MLB-2026-10-23-TB-MIL,2026-10-23,America/Chicago,19:00,MLB,rays-player-2,,TB,MIL,H,career,,,,,,,,0.1.0,,keywords|moon|zodiac
+MLB-2026-10-23-TB-MIL,2026-10-23,America/Chicago,19:00,MLB,rays-player-2,,TB,MIL,RBI,career,,,,,,,,0.1.0,,keywords|moon|zodiac
+MLB-2026-10-23-TB-MIL,2026-10-23,America/Chicago,19:00,MLB,rays-player-3,,TB,MIL,HR,career,,,,,,,,0.1.0,,keywords|moon|zodiac
+MLB-2026-10-23-TB-MIL,2026-10-23,America/Chicago,19:00,MLB,rays-player-3,,TB,MIL,H,career,,,,,,,,0.1.0,,keywords|moon|zodiac
+MLB-2026-10-23-TB-MIL,2026-10-23,America/Chicago,19:00,MLB,rays-player-3,,TB,MIL,RBI,career,,,,,,,,0.1.0,,keywords|moon|zodiac
+MLB-2026-10-23-TB-MIL,2026-10-23,America/Chicago,19:00,MLB,contreras-william,William Contreras,MIL,TB,HR,career,,,,,,,,0.1.0,,keywords|moon|zodiac
+MLB-2026-10-23-TB-MIL,2026-10-23,America/Chicago,19:00,MLB,contreras-william,William Contreras,MIL,TB,H,career,,,,,,,,0.1.0,,keywords|moon|zodiac
+MLB-2026-10-23-TB-MIL,2026-10-23,America/Chicago,19:00,MLB,contreras-william,William Contreras,MIL,TB,RBI,career,,,,,,,,0.1.0,,keywords|moon|zodiac
+MLB-2026-10-23-TB-MIL,2026-10-23,America/Chicago,19:00,MLB,chourio-jackson,Jackson Chourio,MIL,TB,HR,career,,,,,,,,0.1.0,,keywords|moon|zodiac
+MLB-2026-10-23-TB-MIL,2026-10-23,America/Chicago,19:00,MLB,chourio-jackson,Jackson Chourio,MIL,TB,H,career,,,,,,,,0.1.0,,keywords|moon|zodiac
+MLB-2026-10-23-TB-MIL,2026-10-23,America/Chicago,19:00,MLB,chourio-jackson,Jackson Chourio,MIL,TB,RBI,career,,,,,,,,0.1.0,,keywords|moon|zodiac
+MLB-2026-10-23-TB-MIL,2026-10-23,America/Chicago,19:00,MLB,brewers-player-3,,MIL,TB,HR,career,,,,,,,,0.1.0,,keywords|moon|zodiac
+MLB-2026-10-23-TB-MIL,2026-10-23,America/Chicago,19:00,MLB,brewers-player-3,,MIL,TB,H,career,,,,,,,,0.1.0,,keywords|moon|zodiac
+MLB-2026-10-23-TB-MIL,2026-10-23,America/Chicago,19:00,MLB,brewers-player-3,,MIL,TB,RBI,career,,,,,,,,0.1.0,,keywords|moon|zodiac

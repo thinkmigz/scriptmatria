@@ -1,6 +1,6 @@
 # Zilla 3.0 Master Decoding Rulebook
 
-**Version:** v0.2 — merged draft · **Rule registry:** v3.0.0 (`scriptmatria/registry/rules_v3.json`) · **Mode:** TAG-ONLY
+**Version:** v0.2 — merged draft · **Rule registry:** v3.1.0 (`scriptmatria/registry/rules_v3.json`) · **Mode:** TAG-ONLY
 **Primary track:** individual athlete statistical milestones · **Pilot:** MLB career home runs
 
 > **Governance.** This is the player-milestone successor contract. It merges `ZILLA_3_MASTER_RULEBOOK_v0.1_DRAFT.md` (2026-10-21) with the §13 decisions approved on 2026-10-22, and replaces the repo's earlier v2 rulebook.
@@ -78,6 +78,8 @@ Overlays are **off unless requested** (`moon`, `zodiac`, `keywords`). A missing 
 - an invalid timezone, time or overlay
 
 **Source policy (decided):** manual only. Snapshots are entered by an operator.
+
+**Pilot stats:** HR (approved), H (trial), RBI (trial). Any other `stat_code` fails the input lock. A trial-stat decode is labeled in the input summary, the summary row and the ritual note, and its decode status reads `Partial: trial stat`.
 
 ## 4. Canonical mathematics (`zilla_math.py`)
 
@@ -282,7 +284,7 @@ Old decodes keep the versions they were sealed under.
 | # | Item | Status |
 | --- | --- | --- |
 | 1 | Player-prop source policy | **Decided:** manual only |
-| 2 | Pilot stat | **Decided:** MLB career HR (fictional pilot athlete) |
+| 2 | Pilot stat | **Decided:** MLB career HR (approved); career H and RBI as **trial** stats (2026-10-22, World Series test) |
 | 3 | Opponent phrase scope | **Decided:** city, nickname and city+nickname; no abbreviations |
 | 4 | Leap-day birthdays / lunar time source | **Decided:** Feb 29 pending (fail closed); moon needs the event start time (Meeus ch. 49) |
 | 5 | Triple Prime Sync independence rule | **Pending:** NOT_EVALUATED, to be added later |

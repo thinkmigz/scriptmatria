@@ -14,6 +14,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 INPUT_SCHEMA_VERSION = "0.1"
 STAT_SCOPES_IMPLEMENTED = ("career",)
+STAT_CODES = {"HR": "approved", "H": "trial", "RBI": "trial"}  # mirrors registry pilot_stats
 OVERLAYS = ("moon", "zodiac", "keywords")
 REQUIRED = ("event_id", "event_date_local", "timezone", "league", "player_id", "player_name",
             "team_id", "opponent_id", "stat_code", "stat_scope", "current_count",
@@ -166,6 +167,8 @@ def parse_request(raw: dict) -> DecodeRequest:
     if t["stat_scope"] and t["stat_scope"] not in STAT_SCOPES_IMPLEMENTED:
         errors.append(f"stat_scope: '{t['stat_scope']}' is not implemented in v0.1 "
                       f"(supported: {', '.join(STAT_SCOPES_IMPLEMENTED)})")
+    if t["stat_code"] and t["stat_code"] not in STAT_CODES:
+        errors.append(f"stat_code: '{t['stat_code']}' is not registered (allowed: {', '.join(STAT_CODES)})")
     if t["team_id"] and t["team_id"] == t["opponent_id"]:
         errors.append("opponent_id: must differ from team_id")
 

@@ -1,5 +1,5 @@
 {
-  "registry_version": "3.0.0",
+  "registry_version": "3.1.0",
   "rulebook_version": "0.2",
   "mode": "TAG-ONLY",
   "notes": "Player-milestone registry for the Zilla 3.0 pilot (MLB career HR). Merges ZILLA_3_MASTER_RULEBOOK_v0.1_DRAFT with the approved section 13 decisions of 2026-10-22. rules_v1.json and rules_v2.json are kept unchanged as history.",
@@ -13,7 +13,8 @@
     "Moon, zodiac and keyword overlays are opt-in. Moon requires the event start time.",
     "TRIPLE_PRIME_SYNC is NOT_EVALUATED until an independence rule is locked; PRIME_CLUSTER is always flagged DEPENDENCY_REVIEW_REQUIRED.",
     "The control test moved out of the decode into the separate research command.",
-    "The milestone is derived as current_count + 1; v0.1 implements career scope only."
+    "The milestone is derived as current_count + 1; v0.1 implements career scope only.",
+    "3.1.0: stat codes are registered. HR is the approved pilot stat; H and RBI are trial stats, labeled in every output."
   ],
   "statuses": {
     "QUALIFIED_STRUCTURAL": "exact hit of a structural rule from a verified source",
@@ -26,7 +27,7 @@
   },
   "decisions": {
     "source_policy": "manual-only (operator-entered snapshot)",
-    "pilot_stat": "MLB career HR",
+    "pilot_stat": "MLB career HR (approved); career H and RBI as trial stats",
     "phrase_scope": "city, nickname, city+nickname; no abbreviations",
     "leap_day_birthdays": "pending: birthday-anchored spans UNVERIFIED in non-leap years",
     "triple_prime_sync": "NOT_EVALUATED (rule to be added later)",
@@ -46,32 +47,157 @@
     "DN5": "every digit of month, day and two-digit year (1+0+2+1+2+6 = 12)",
     "DOY": "day of the year, Jan 1 = 1",
     "DAYS_LEFT": "days_in_year - DOY (excludes the event day)",
-    "weekday_planets": {"Sunday": "Sun", "Monday": "Moon", "Tuesday": "Mars", "Wednesday": "Mercury", "Thursday": "Jupiter", "Friday": "Venus", "Saturday": "Saturn"},
+    "weekday_planets": {
+      "Sunday": "Sun",
+      "Monday": "Moon",
+      "Tuesday": "Mars",
+      "Wednesday": "Mercury",
+      "Thursday": "Jupiter",
+      "Friday": "Venus",
+      "Saturday": "Saturn"
+    },
     "birthday": "Exact calendar arithmetic from birth date to the local event date. An event-day birthday gives days_since = 0 and days_until = 0. Spans are distinct anchors.",
     "moon_phase": "algorithm meeus-ch49 (true phases, dT = 69 s). Requires event_start_local and timezone; the phase name is judged over the local calendar day and the moon age at the start time.",
     "zodiac": "Fixed tropical sun-sign table: Aries 3/21, Taurus 4/20, Gemini 5/21, Cancer 6/21, Leo 7/23, Virgo 8/23, Libra 9/23, Scorpio 10/23, Sagittarius 11/22, Capricorn 12/22, Aquarius 1/20, Pisces 2/19.",
     "control_test": "Research only: the same verified sources decoded against alternative milestones within +/- window of M."
   },
-  "overlays": ["moon", "zodiac", "keywords"],
-  "control": {"milestone_window": 10},
+  "overlays": [
+    "moon",
+    "zodiac",
+    "keywords"
+  ],
+  "control": {
+    "milestone_window": 10
+  },
   "symbolic_sets": {
-    "Skull and Bones": [149, 41, 76, 322],
-    "Jesuit": [144, 153, 72]
+    "Skull and Bones": [
+      149,
+      41,
+      76,
+      322
+    ],
+    "Jesuit": [
+      144,
+      153,
+      72
+    ]
   },
   "rules": {
-    "M-PRIME":          {"name": "Milestone is prime",             "operation": "is_prime(M)",                      "family": "milestone", "class": "structural", "prime_related": true,  "version": "1.0"},
-    "M-REVPRIME":       {"name": "Reversed milestone is prime",    "operation": "is_prime(reverse_digits(M))",      "family": "milestone", "class": "structural", "prime_related": true,  "version": "2.0"},
-    "M-INDEX":          {"name": "Prime position annotation",      "operation": "prime_index(M)",                   "family": "milestone", "class": "annotation", "prime_related": false, "version": "1.0"},
-    "OPP-TYPEA":        {"name": "Direct opponent match",          "operation": "G == M",                           "family": "opponent_gematria", "class": "structural", "prime_related": false, "version": "1.0"},
-    "SELF-TYPEA":       {"name": "Direct own-team match",          "operation": "G == M",                           "family": "team_gematria", "class": "structural", "prime_related": false, "version": "1.0"},
-    "PIGR-A":           {"name": "Prime milestone to raw value",   "operation": "is_prime(M) and prime_index(M) == G", "family": "source", "class": "structural", "prime_related": true,  "version": "1.0"},
-    "PIGR-B":           {"name": "Prime value to milestone",       "operation": "is_prime(G) and prime_index(G) == M", "family": "source", "class": "structural", "prime_related": true,  "version": "1.0"},
-    "JERSEY-EXACT":     {"name": "Jersey equality",                "operation": "J == M",                           "family": "jersey",   "class": "symbolic",   "prime_related": false, "version": "2.0"},
-    "DN-EXACT":         {"name": "Named calendar value",           "operation": "DNx/DOY/DAYS_LEFT == M",           "family": "calendar", "class": "calendar",   "prime_related": false, "version": "2.0"},
-    "DAY-GEM":          {"name": "Weekday gematria",               "operation": "cipher(weekday) == M",             "family": "calendar", "class": "calendar",   "prime_related": false, "version": "1.0"},
-    "PLANET-GEM":       {"name": "Ruling planet gematria",         "operation": "cipher(planet) == M",              "family": "calendar", "class": "calendar",   "prime_related": false, "version": "1.0"},
-    "BIRTH-SPAN-EXACT": {"name": "Named birthday interval",        "operation": "span == M",                        "family": "birthday", "class": "calendar",   "prime_related": false, "version": "2.0"},
-    "KW-EXACT":         {"name": "Symbolic code hit",              "operation": "value in keyword set",             "family": "symbolic", "class": "symbolic",   "prime_related": false, "version": "1.0"}
+    "M-PRIME": {
+      "name": "Milestone is prime",
+      "operation": "is_prime(M)",
+      "family": "milestone",
+      "class": "structural",
+      "prime_related": true,
+      "version": "1.0"
+    },
+    "M-REVPRIME": {
+      "name": "Reversed milestone is prime",
+      "operation": "is_prime(reverse_digits(M))",
+      "family": "milestone",
+      "class": "structural",
+      "prime_related": true,
+      "version": "2.0"
+    },
+    "M-INDEX": {
+      "name": "Prime position annotation",
+      "operation": "prime_index(M)",
+      "family": "milestone",
+      "class": "annotation",
+      "prime_related": false,
+      "version": "1.0"
+    },
+    "OPP-TYPEA": {
+      "name": "Direct opponent match",
+      "operation": "G == M",
+      "family": "opponent_gematria",
+      "class": "structural",
+      "prime_related": false,
+      "version": "1.0"
+    },
+    "SELF-TYPEA": {
+      "name": "Direct own-team match",
+      "operation": "G == M",
+      "family": "team_gematria",
+      "class": "structural",
+      "prime_related": false,
+      "version": "1.0"
+    },
+    "PIGR-A": {
+      "name": "Prime milestone to raw value",
+      "operation": "is_prime(M) and prime_index(M) == G",
+      "family": "source",
+      "class": "structural",
+      "prime_related": true,
+      "version": "1.0"
+    },
+    "PIGR-B": {
+      "name": "Prime value to milestone",
+      "operation": "is_prime(G) and prime_index(G) == M",
+      "family": "source",
+      "class": "structural",
+      "prime_related": true,
+      "version": "1.0"
+    },
+    "JERSEY-EXACT": {
+      "name": "Jersey equality",
+      "operation": "J == M",
+      "family": "jersey",
+      "class": "symbolic",
+      "prime_related": false,
+      "version": "2.0"
+    },
+    "DN-EXACT": {
+      "name": "Named calendar value",
+      "operation": "DNx/DOY/DAYS_LEFT == M",
+      "family": "calendar",
+      "class": "calendar",
+      "prime_related": false,
+      "version": "2.0"
+    },
+    "DAY-GEM": {
+      "name": "Weekday gematria",
+      "operation": "cipher(weekday) == M",
+      "family": "calendar",
+      "class": "calendar",
+      "prime_related": false,
+      "version": "1.0"
+    },
+    "PLANET-GEM": {
+      "name": "Ruling planet gematria",
+      "operation": "cipher(planet) == M",
+      "family": "calendar",
+      "class": "calendar",
+      "prime_related": false,
+      "version": "1.0"
+    },
+    "BIRTH-SPAN-EXACT": {
+      "name": "Named birthday interval",
+      "operation": "span == M",
+      "family": "birthday",
+      "class": "calendar",
+      "prime_related": false,
+      "version": "2.0"
+    },
+    "KW-EXACT": {
+      "name": "Symbolic code hit",
+      "operation": "value in keyword set",
+      "family": "symbolic",
+      "class": "symbolic",
+      "prime_related": false,
+      "version": "1.0"
+    }
   },
-  "forbidden": ["PIGR-C digit-sum bridges", "phrases outside the approved registry", "extra ciphers", "creative transformations during a decode", "concat, SACB/EACB, power-chain, square/Fibonacci and mirror bridges (experimental, off)"]
+  "forbidden": [
+    "PIGR-C digit-sum bridges",
+    "phrases outside the approved registry",
+    "extra ciphers",
+    "creative transformations during a decode",
+    "concat, SACB/EACB, power-chain, square/Fibonacci and mirror bridges (experimental, off)"
+  ],
+  "pilot_stats": {
+    "HR": "approved",
+    "H": "trial",
+    "RBI": "trial"
+  }
 }

@@ -65,3 +65,13 @@ def test_duplicate_decodes_rejected(tmp_path):
     p.write_text(json.dumps([BASE, BASE]))
     with pytest.raises(inputs.InputError, match="duplicate"):
         inputs.load(p)
+
+
+def test_stat_codes_registered():
+    from conftest import REGISTRY
+    assert inputs.STAT_CODES == REGISTRY["pilot_stats"]
+    assert SCHEMA["properties"]["stat_code"]["enum"] == list(inputs.STAT_CODES)
+    for code in inputs.STAT_CODES:
+        assert inputs.parse_request(snapshot(stat_code=code)).stat_code == code
+    with pytest.raises(inputs.InputError, match="stat_code: 'XYZ' is not registered"):
+        inputs.parse_request(snapshot(stat_code="XYZ"))

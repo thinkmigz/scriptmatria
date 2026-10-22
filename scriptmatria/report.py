@@ -75,8 +75,14 @@ def _gematria_table(req: inputs.DecodeRequest, phrase_reg: dict) -> list[dict]:
     return rows
 
 
-def _status(records: list[dict]) -> str:
+def _stat_standing(stat_code: str) -> str:
+    return inputs.STAT_CODES.get(stat_code, "unregistered")
+
+
+def _status(records: list[dict], stat_code: str) -> str:
     problems = []
+    if _stat_standing(stat_code) != "approved":
+        problems.append(f"{_stat_standing(stat_code)} stat")
     for status, label in ((RULE_CONFLICT, "rule conflict"), (INVALID, "invalid sources"),
                           (UNVERIFIED, "unverified inputs")):
         n = sum(1 for r in records if r["status"] == status)
@@ -94,7 +100,9 @@ def _note(req: inputs.DecodeRequest, records: list[dict], cls: dict) -> str:
                 if label not in seen:
                     seen.append(label)
         return seen
-    parts = [f"{req.player_name}: next {req.stat_code} #{req.milestone}"]
+    standing = _stat_standing(req.stat_code)
+    parts = [f"{req.player_name}: next {req.stat_code} #{req.milestone}"
+             + ("" if standing == "approved" else f" ({standing} stat, outside the approved pilot)")]
     q = names(QS) + names(QC)
     parts.append(f"qualified alignments: {', '.join(q)}" if q else "no qualified alignments")
     s = names(SN)
@@ -142,7 +150,7 @@ def decode(req: inputs.DecodeRequest, registry: dict, phrase_reg: dict) -> dict:
         "grid": _grid(records),
         "classification": cls,
         "overlays": _overlays(req),
-        "decode_status": _status(records),
+        "decode_status": _status(records, req.stat_code),
         "ledger_summary": validator.ledger(records),
         "records": records,
     }
@@ -180,7 +188,7 @@ def summary_row(res: dict) -> dict:
     return {
         "Decode ID": res["decode_id"], "Event ID": inp["event_id"], "Event date": inp["event_date_local"],
         "League": inp["league"], "Player ID": inp["player_id"], "Player": inp["player_name"],
-        "Team": inp["team_id"], "Opponent": inp["opponent_id"], "Stat": f"{inp['stat_code']} ({inp['stat_scope']})",
+        "Team": inp["team_id"], "Opponent": inp["opponent_id"], "Stat": f"{inp['stat_code']} ({inp['stat_scope']}, {_stat_standing(inp['stat_code'])})",
         "Current": inp["current_count"], "Target": inp["target_count"], "Count as of": inp["current_count_as_of"],
         "Prime index": res["milestone_card"]["M-INDEX"] or "Not prime",
         "Reverse prime": _lane(recs, "M-REVPRIME"), "PIGR-A": _lane(recs, "PIGR-A"), "PIGR-B": _lane(recs, "PIGR-B"),
@@ -221,7 +229,8 @@ def to_markdown(res: dict) -> str:
                   + (f" · start {inp['event_start_local']}" if inp["event_start_local"] else ""), "snapshot"],
         ["Matchup", f"{inp['team_id']} vs {inp['opponent_id']} ({inp['league']})", "snapshot"],
         ["Player", f"{inp['player_name']} ({inp['player_id']})", "snapshot"],
-        ["Stat", f"{inp['stat_code']} · {inp['stat_scope']} · {inp['current_count']} → {inp['target_count']}",
+        ["Stat", f"{inp['stat_code']} ({_stat_standing(inp['stat_code'])}) · {inp['stat_scope']} · "
+                 f"{inp['current_count']} → {inp['target_count']}",
          f"{inp['current_count_source']} (as of {inp['current_count_as_of']})"],
         ["Birth date", inp["birth_date"] or UNVERIFIED, inp["birth_date_source"] or "—"],
         ["Jersey", inp["jersey"] if inp["jersey"] is not None else UNVERIFIED, inp["jersey_source"] or "—"],
