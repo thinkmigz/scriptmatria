@@ -59,7 +59,7 @@ def _digits(n: int) -> list[int]:
 
 
 def date_numerology(d: date) -> dict[str, int]:
-    """DN1-DN5 (Gematrinator-style), day of year, days left in the year."""
+    """DN1-DN5, day of year, days left in the year (formulas in the rule registry)."""
     m, day, y = d.month, d.day, d.year
     century, yy = divmod(y, 100)
     doy = d.timetuple().tm_yday
@@ -68,11 +68,21 @@ def date_numerology(d: date) -> dict[str, int]:
         "DN2": m + day + sum(_digits(y)),
         "DN3": sum(_digits(m)) + sum(_digits(day)) + sum(_digits(y)),
         "DN4": m + day + yy,
-        "DN5": sum(_digits(m)) + sum(_digits(day)) + yy,
+        "DN5": sum(_digits(m)) + sum(_digits(day)) + sum(_digits(yy)),
         "DOY": doy,
         "DAYS_LEFT": (366 if calendar.isleap(y) else 365) - doy,
     }
 
 
+WEEKDAY_PLANETS = {
+    "Sunday": "Sun", "Monday": "Moon", "Tuesday": "Mars", "Wednesday": "Mercury",
+    "Thursday": "Jupiter", "Friday": "Venus", "Saturday": "Saturn",
+}
+
+
 def weekday(d: date) -> str:
     return calendar.day_name[d.weekday()]
+
+
+def ruling_planet(d: date) -> str:
+    return WEEKDAY_PLANETS[weekday(d)]

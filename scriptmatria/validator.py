@@ -10,7 +10,10 @@ def _prime_family(rec: dict) -> str:
 
 
 def classify(records: list[dict]) -> dict:
-    hits = [r for r in records if r["hit"]]
+    all_hits = [r for r in records if r["hit"]]
+    # Hits from numbers not yet tied to a phrase and cipher are held back as pending.
+    pending = [r for r in all_hits if not r["source_verified"]]
+    hits = [r for r in all_hits if r["source_verified"]]
     structural = [r for r in hits if r["evidence_class"] != "symbolic"]
     prime_hits = [r for r in hits if r["prime_related"]]
 
@@ -42,6 +45,7 @@ def classify(records: list[dict]) -> dict:
 
     return {
         "hit_count": len(structural),
+        "pending_hits": [f"{r['rule_id']} [{r['label']}]" for r in pending],
         "symbolic_count": len(hits) - len(structural),
         "families": {k: sorted(v) for k, v in sorted(families.items())},
         "dependency_groups": dependency_groups,

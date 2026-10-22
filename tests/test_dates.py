@@ -42,7 +42,7 @@ def test_end_before_start_rejected():
 
 def test_date_numerology_reference_date():
     assert dates.date_numerology(date(2026, 10, 22)) == {
-        "DN1": 78, "DN2": 42, "DN3": 15, "DN4": 58, "DN5": 31, "DOY": 295, "DAYS_LEFT": 70}
+        "DN1": 78, "DN2": 42, "DN3": 15, "DN4": 58, "DN5": 13, "DOY": 295, "DAYS_LEFT": 70}
     assert dates.date_numerology(date(2024, 12, 31))["DAYS_LEFT"] == 0
     assert dates.date_numerology(date(2024, 12, 31))["DOY"] == 366
     assert dates.weekday(date(2026, 10, 22)) == "Thursday"

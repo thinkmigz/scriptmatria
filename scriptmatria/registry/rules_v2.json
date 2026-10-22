@@ -1,0 +1,63 @@
+{
+  "registry_version": "2.0.0",
+  "mode": "TAG-ONLY",
+  "notes": "Zilla 3.0 workflow registry. Every rule is deterministic. No rule carries predictive status; all are 'unvalidated' until the separate research process says otherwise. rules_v1.json is kept unchanged as the historical v1 policy.",
+  "changes_from_v1": [
+    "DN5 is now the digit sum of month, day and two-digit year (10/21/2026 -> 1+0+2+1+2+6 = 12); v1 added the two-digit year whole.",
+    "Added DAY-GEM and PLANET-GEM: five-cipher gematria of the weekday and its ruling planet.",
+    "Removed ZODIAC-SYNC: zodiac season is a descriptive tag.",
+    "Supplied numbers without a phrase and cipher are 'source pending' and do not count toward Prime Cluster, Triple Prime Sync or the control test.",
+    "Added the control test (alternative milestones), decode status, freeze/amend and outcome grading."
+  ],
+  "workflow": [
+    "01 Input lock: player, date, opponent, stat milestone; inputs hashed (input_sha256)",
+    "02 Number generation: birthday spans, calendar codes, gematria, primes",
+    "03 Relationship detection: direct matches, PIGR-A/B",
+    "04 Ritual overlay: jersey, moon, zodiac, weekday/planet, symbolic keywords",
+    "05 Signal validation: exactness, verified source, independence, duplicate check",
+    "06 Control test: alternative milestones in a fixed window",
+    "07 Decode output: grid, Excel summary row, JSON audit with every comparison",
+    "08 Freeze: reports are never overwritten; changed inputs create an amendment",
+    "09 Grade: outcomes go to a separate ledger and never edit the decode",
+    "10 Learn: research engine (not part of this tool)"
+  ],
+  "conventions": {
+    "gematria": "Letters only, case-insensitive. Ciphers: EO (a=1..z=26), FR (EO digit-reduced), RO (a=26..z=1), RR (RO digit-reduced), CH (Chaldean).",
+    "prime_index": "1-based: 2 is the 1st prime, 23 is the 9th prime.",
+    "DN1": "month + day + century + two-digit year (10/21/2026 -> 10+21+20+26 = 77)",
+    "DN2": "month + day + each digit of the year (10+21+2+0+2+6 = 41)",
+    "DN3": "every digit of month, day and year (1+0+2+1+2+0+2+6 = 14)",
+    "DN4": "month + day + two-digit year (10+21+26 = 57)",
+    "DN5": "every digit of month, day and two-digit year (1+0+2+1+2+6 = 12)",
+    "DOY": "day of the year, Jan 1 = 1",
+    "DAYS_LEFT": "days remaining in the year after the event date",
+    "weekday_planets": {"Sunday": "Sun", "Monday": "Moon", "Tuesday": "Mars", "Wednesday": "Mercury", "Thursday": "Jupiter", "Friday": "Venus", "Saturday": "Saturn"},
+    "birthday": "Exact spans from birth date to event date. Feb 29 birthdays are observed on Feb 28 in non-leap years. Spans are distinct anchors and never substituted for one another.",
+    "triple_prime_sync": "At least 3 verified prime-related hits drawn from at least 3 distinct source families AND at least 3 distinct source numbers.",
+    "source_verification": "Gematria from a supplied phrase is verified (phrase and cipher are recorded). A bare supplied number is 'source pending' until it is replaced by its phrase.",
+    "milestone_type": "cumulative = a running count reaching a new value (career HR #23); threshold = a single-game line (20+ points). Recorded with every decode.",
+    "moon_phase": "True phase instants from Meeus, Astronomical Algorithms (2nd ed., ch. 49), dT = 69 s; accurate to about a minute. A date takes a principal phase name (New Moon, First Quarter, Full Moon, Last Quarter) if that instant falls within the calendar day in the event timezone (UTC if none given); otherwise the intermediate name after the latest principal phase. Moon age is measured at event_time if given, else local noon. Descriptive tag only.",
+    "zodiac": "Tropical sun signs on a fixed date table: Aries 3/21, Taurus 4/20, Gemini 5/21, Cancer 6/21, Leo 7/23, Virgo 8/23, Libra 9/23, Scorpio 10/23, Sagittarius 11/22, Capricorn 12/22, Aquarius 1/20, Pisces 2/19. Descriptive tag only.",
+    "control_test": "The same sources are decoded against every alternative milestone within +/- window of M (values >= 1, M excluded). Reports how many alternatives have at least as many verified structural hits. Descriptive rarity only, not a probability of the milestone."
+  },
+  "control": {"milestone_window": 10},
+  "symbolic_sets": {
+    "Skull and Bones": [149, 41, 76, 322],
+    "Jesuit": [144, 153, 72]
+  },
+  "rules": {
+    "PRIME-M":    {"name": "Prime milestone",        "inputs": ["M"],    "qualification": "M is prime",                                   "family": "milestone",   "evidence_class": "structural", "prime_related": true,  "version": "1.0"},
+    "REVPRIME-M": {"name": "Reverse prime milestone","inputs": ["M"],    "qualification": "reverse(M) is prime and reverse(M) != M",      "family": "milestone",   "evidence_class": "structural", "prime_related": true,  "version": "1.0"},
+    "PIGR-A":     {"name": "Prime milestone to gematria index", "inputs": ["M", "G"], "qualification": "M is prime and prime_index(M) == G", "family": "source",      "evidence_class": "structural", "prime_related": true,  "version": "1.0"},
+    "PIGR-B":     {"name": "Gematria prime to milestone index", "inputs": ["M", "G"], "qualification": "G is prime and prime_index(G) == M", "family": "source",      "evidence_class": "structural", "prime_related": true,  "version": "1.0"},
+    "TYPEA":      {"name": "Opponent gematria sync", "inputs": ["M", "G"], "qualification": "opponent phrase/value G == M",                 "family": "opponent_gematria", "evidence_class": "structural", "prime_related": false, "version": "1.0"},
+    "GEM-SELF":   {"name": "Self-referential gematria sync", "inputs": ["M", "G"], "qualification": "team/player/event phrase/value G == M", "family": "source", "evidence_class": "structural", "prime_related": false, "version": "1.0"},
+    "JERSEY":     {"name": "Jersey sync",            "inputs": ["M", "J"], "qualification": "J == M",                                       "family": "jersey",      "evidence_class": "structural", "prime_related": false, "version": "1.0"},
+    "BDAY":       {"name": "Birthday span sync",     "inputs": ["M", "birthday", "event_date"], "qualification": "a labeled birthday span == M", "family": "birthday", "evidence_class": "structural", "prime_related": false, "version": "1.0"},
+    "DN":         {"name": "Date numerology sync",   "inputs": ["M", "event_date"], "qualification": "DN1-DN5, DOY or DAYS_LEFT == M",          "family": "calendar",    "evidence_class": "calendar",   "prime_related": false, "version": "2.0"},
+    "DAY-GEM":    {"name": "Weekday gematria sync",  "inputs": ["M", "event_date"], "qualification": "a cipher value of the weekday name == M", "family": "calendar",    "evidence_class": "calendar",   "prime_related": false, "version": "1.0"},
+    "PLANET-GEM": {"name": "Ruling planet gematria sync", "inputs": ["M", "event_date"], "qualification": "a cipher value of the weekday's ruling planet == M", "family": "calendar", "evidence_class": "calendar", "prime_related": false, "version": "1.0"},
+    "SYM":        {"name": "Symbolic code",          "inputs": ["M", "any source value"], "qualification": "value is in a locked symbolic set", "family": "symbolic",  "evidence_class": "symbolic",   "prime_related": false, "version": "1.0"}
+  },
+  "forbidden": ["PIGR-C digit-sum bridges", "creative transformations during a decode", "mirror/concat bridges (not in this registry)"]
+}

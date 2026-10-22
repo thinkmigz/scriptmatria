@@ -3,7 +3,8 @@
 Moon phases use the true-phase algorithm from Jean Meeus, *Astronomical
 Algorithms* (2nd ed., ch. 49), accurate to about a minute, with a fixed
 ΔT = 69 s (TT → UTC). A date's phase is judged over its whole calendar day in
-the event's timezone (UTC unless one is supplied): if a principal phase instant
+the event's timezone (UTC unless one is supplied); moon age is measured at the
+event time if given, else local noon. If a principal phase instant
 falls inside that day the date takes that name, otherwise it takes the
 intermediate name following the most recent principal phase.
 
@@ -109,15 +110,16 @@ def _phases_around(d: date) -> list[tuple[datetime, str]]:
     return sorted(out)
 
 
-def moon_phase(d: date, tz: str | None = None) -> dict:
+def moon_phase(d: date, tz: str | None = None, at: time | None = None) -> dict:
+    """Phase for calendar day d. Moon age is measured at `at` (local), or at noon."""
     zone = ZoneInfo(tz) if tz else timezone.utc
     start = datetime.combine(d, time.min, zone).astimezone(timezone.utc)
     end = datetime.combine(d + timedelta(days=1), time.min, zone).astimezone(timezone.utc)
-    noon = datetime.combine(d, time(12), zone).astimezone(timezone.utc)
+    when = datetime.combine(d, at or time(12), zone).astimezone(timezone.utc)
     phases = _phases_around(d)
 
     on_day = [(t, n) for t, n in phases if start <= t < end]
-    prev_new = max(t for t, n in phases if n == "New Moon" and t <= noon)
+    prev_new = max(t for t, n in phases if n == "New Moon" and t <= when)
     next_full = min(t for t, n in phases if n == "Full Moon" and t >= start)
     next_new = min(t for t, n in phases if n == "New Moon" and t >= start)
     if on_day:
@@ -130,7 +132,8 @@ def moon_phase(d: date, tz: str | None = None) -> dict:
         "phase": name,
         "principal_phase_utc": ((exact + timedelta(seconds=30)).strftime("%Y-%m-%d %H:%M UTC")
                                 if exact else None),
-        "moon_age_days": round((noon - prev_new).total_seconds() / 86400, 1),
+        "moon_age_days": round((when - prev_new).total_seconds() / 86400, 1),
+        "measured_at": f"{(at or time(12)).strftime('%H:%M')} local",
         "days_to_full_moon": (local(next_full) - d).days,
         "days_to_new_moon": (local(next_new) - d).days,
         "timezone": tz or "UTC",

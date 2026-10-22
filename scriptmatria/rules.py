@@ -7,14 +7,17 @@ import json
 from dataclasses import dataclass
 from importlib import resources
 
-from . import astro, dates, gematria, primes
+from . import dates, gematria, primes
 from .inputs import DecodeRequest
 
 GEMATRIA_FAMILY = {e: f"{e}_gematria" for e in ("opponent", "team", "player", "event")}
 _UNSET = object()
 
 
-def load_registry(name: str = "rules_v1.json") -> dict:
+REGISTRY_FILE = "rules_v2.json"
+
+
+def load_registry(name: str = REGISTRY_FILE) -> dict:
     return json.loads(resources.files("scriptmatria.registry").joinpath(name).read_text("utf-8"))
 
 
@@ -24,8 +27,10 @@ class Source:
     family: str
     label: str
     value: int
+    match_rule: str  # rule that compares this value directly with the milestone
     cipher: str | None = None
     phrase: str | None = None
+    verified: bool = True  # False for supplied numbers not yet tied to a phrase and cipher
 
 
 def build_sources(req: DecodeRequest) -> tuple[list[Source], dict[str, str]]:
@@ -34,29 +39,38 @@ def build_sources(req: DecodeRequest) -> tuple[list[Source], dict[str, str]]:
     unverified: dict[str, str] = {}
 
     for p in req.phrases:
+        rule = "TYPEA" if p.entity == "opponent" else "GEM-SELF"
         for code, v in gematria.all_values(p.phrase).items():
             sources.append(Source(f"{p.entity}:{p.phrase}:{code}", GEMATRIA_FAMILY[p.entity],
-                                  f"{p.entity} '{p.phrase}' ({code})", v, code, p.phrase))
+                                  f"{p.entity} '{p.phrase}' ({code})", v, rule, code, p.phrase))
     for sv in req.values:
+        rule = "TYPEA" if sv.entity == "opponent" else "GEM-SELF"
         sources.append(Source(f"{sv.entity}:supplied:{sv.label}", GEMATRIA_FAMILY[sv.entity],
-                              f"{sv.label} [{sv.entity}, supplied]", sv.value, "supplied"))
+                              f"{sv.label} [{sv.entity}, supplied]", sv.value, rule, "supplied",
+                              verified=False))
     if not any(s.family == "opponent_gematria" for s in sources):
         unverified["opponent_gematria"] = "no opponent phrases or values supplied"
 
     if req.jersey is not None:
-        sources.append(Source("jersey", "jersey", "jersey", req.jersey))
+        sources.append(Source("jersey", "jersey", "jersey", req.jersey, "JERSEY"))
     else:
         unverified["jersey"] = "jersey not supplied"
 
     if req.birthday and req.event_date:
         for key, v in dates.birthday_spans(req.birthday, req.event_date).items():
-            sources.append(Source(f"birthday:{key}", "birthday", f"birthday {key}", v))
+            sources.append(Source(f"birthday:{key}", "birthday", f"birthday {key}", v, "BDAY"))
     else:
         unverified["birthday"] = "birthday not supplied" if not req.birthday else "event date not supplied"
 
     if req.event_date:
+        day = req.event_date.isoformat()
         for key, v in dates.date_numerology(req.event_date).items():
-            sources.append(Source(f"calendar:{key}", "calendar", f"{req.event_date.isoformat()} {key}", v))
+            sources.append(Source(f"calendar:{key}", "calendar", f"{day} {key}", v, "DN"))
+        for kind, rule, word in (("weekday", "DAY-GEM", dates.weekday(req.event_date)),
+                                 ("planet", "PLANET-GEM", dates.ruling_planet(req.event_date))):
+            for code, v in gematria.all_values(word).items():
+                sources.append(Source(f"calendar:{kind}:{word}:{code}", "calendar",
+                                      f"{kind} '{word}' ({code})", v, rule, code, word))
     else:
         unverified["calendar"] = "event date not supplied"
 
@@ -81,6 +95,7 @@ class _Recorder:
             "label": source.label if source else f"milestone {self.milestone}",
             "cipher": source.cipher if source else None,
             "phrase": source.phrase if source else None,
+            "source_verified": source.verified if source else True,
             "value": value if value is not _UNSET else (source.value if source else self.milestone),
             "milestone": self.milestone,
             "computation": computation,
@@ -125,14 +140,8 @@ def evaluate(req: DecodeRequest, registry: dict) -> tuple[list[dict], dict[str, 
 
     # Direct equality syncs
     for s in sources:
-        if s.family == "opponent_gematria":
-            rule = "TYPEA"
-        elif s.family.endswith("_gematria"):
-            rule = "GEM-SELF"
-        else:
-            rule = {"jersey": "JERSEY", "birthday": "BDAY", "calendar": "DN"}[s.family]
         ok = s.value == m
-        rec.add(rule, ok, f"{s.label} = {s.value}" + (f" = milestone {m}" if ok else f" ≠ {m}"), s)
+        rec.add(s.match_rule, ok, f"{s.label} = {s.value}" + (f" = milestone {m}" if ok else f" ≠ {m}"), s)
 
     # Symbolic tags: kept separate, never counted as structural evidence.
     sym = {n: name for name, nums in registry["symbolic_sets"].items() for n in nums}
@@ -142,13 +151,6 @@ def evaluate(req: DecodeRequest, registry: dict) -> tuple[list[dict], dict[str, 
         rec.add("SYM", v in sym,
                 f"{label} = {v}, a {sym[v]} number" if v in sym else f"{label} = {v}, not in a symbolic set",
                 s, family="symbolic", value=v)
-
-    # Zodiac sync: the event falls in the player's own sun-sign season (symbolic).
-    if req.birthday and req.event_date:
-        born, event = astro.zodiac_sign(req.birthday), astro.zodiac_sign(req.event_date)
-        rec.add("ZODIAC-SYNC", born == event,
-                f"event in {event} season; player is {born}" + (" (own season)" if born == event else ""),
-                family="symbolic", value=None)
 
     return rec.records, unverified
 

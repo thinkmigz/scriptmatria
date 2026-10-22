@@ -1,2 +1,2 @@
-id,player,stat_category,current,milestone,birthday,jersey,event_date,timezone,team,opponent,phrases,values
-csv-example,Example Athlete,points,40,41,1998-03-14,7,2026-10-22,America/New_York,Example City Comets,Sample Town Rockets,opponent:Rockets|team:Comets,opponent:authorized value=83
+id,player,stat_category,milestone_type,current,milestone,birthday,jersey,event_date,timezone,team,opponent,phrases,values
+csv-example,Example Athlete,points,cumulative,40,41,1998-03-14,7,2026-10-22,America/New_York,Example City Comets,Sample Town Rockets,opponent:Rockets|team:Comets,opponent:authorized value=83

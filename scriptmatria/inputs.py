@@ -7,11 +7,12 @@ rules that need it report "Unverified".
 import csv
 import json
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import date, time
 from pathlib import Path
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 ENTITIES = ("opponent", "team", "player", "event")
+MILESTONE_TYPES = ("cumulative", "threshold")
 
 
 class InputError(ValueError):
@@ -36,12 +37,14 @@ class DecodeRequest:
     id: str
     player: str
     milestone: int
+    milestone_type: str | None = None
     stat_category: str | None = None
     current: int | None = None
     birthday: date | None = None
     jersey: int | None = None
     event_date: date | None = None
     timezone: str | None = None
+    event_time: time | None = None
     team: str | None = None
     opponent: str | None = None
     phrases: tuple[Phrase, ...] = field(default_factory=tuple)
@@ -52,12 +55,14 @@ class DecodeRequest:
             "id": self.id,
             "player": self.player,
             "milestone": self.milestone,
+            "milestone_type": self.milestone_type,
             "stat_category": self.stat_category,
             "current": self.current,
             "birthday": self.birthday.isoformat() if self.birthday else None,
             "jersey": self.jersey,
             "event_date": self.event_date.isoformat() if self.event_date else None,
             "timezone": self.timezone,
+            "event_time": self.event_time.strftime("%H:%M") if self.event_time else None,
             "team": self.team,
             "opponent": self.opponent,
             "phrases": [{"entity": p.entity, "phrase": p.phrase} for p in self.phrases],
@@ -90,6 +95,16 @@ def _int(raw, name, errors, required=False):
     return n
 
 
+def _time(raw, errors):
+    if raw in (None, ""):
+        return None
+    try:
+        return time.fromisoformat(str(raw))
+    except ValueError:
+        errors.append(f"event_time: '{raw}' is not a 24-hour time (HH:MM)")
+        return None
+
+
 def _tz(raw, errors):
     if raw in (None, ""):
         return None
@@ -118,6 +133,9 @@ def parse_request(raw: dict) -> DecodeRequest:
     milestone = _int(raw.get("milestone"), "milestone", errors, required=True)
     if milestone == 0:
         errors.append("milestone: must be positive")
+    mtype = raw.get("milestone_type") or None
+    if mtype is not None and mtype not in MILESTONE_TYPES:
+        errors.append(f"milestone_type: '{mtype}' must be one of {', '.join(MILESTONE_TYPES)}")
 
     phrases = []
     for i, p in enumerate(raw.get("phrases") or []):
@@ -138,12 +156,14 @@ def parse_request(raw: dict) -> DecodeRequest:
         id=rid,
         player=player,
         milestone=milestone or 0,
+        milestone_type=mtype,
         stat_category=raw.get("stat_category") or None,
         current=_int(raw.get("current"), "current", errors),
         birthday=_date(raw.get("birthday"), "birthday", errors),
         jersey=_int(raw.get("jersey"), "jersey", errors),
         event_date=_date(raw.get("event_date"), "event_date", errors),
         timezone=_tz(raw.get("timezone"), errors),
+        event_time=_time(raw.get("event_time"), errors),
         team=raw.get("team") or None,
         opponent=raw.get("opponent") or None,
         phrases=tuple(phrases),

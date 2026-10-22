@@ -1,16 +1,17 @@
 # scriptmatria
 
-A lite, deterministic **TAG-ONLY** ritual decoder for player milestones. It is a clean rebuild of Zilla's mathematical core, following the October 2026 audit:
+The Zilla 3.0 decoding engine. It is lite, deterministic and **TAG-ONLY**.
 
-- one canonical math library
-- every rule has an ID and a version
-- PIGR-A and PIGR-B are judged separately
-- dependent hits aren't counted as independent confirmation
-- every comparison, hit or miss, is logged
+You give it an athlete, a game date and a stat milestone. It runs every athlete through the same calculations, in the same order, under the same versioned rules, and returns an auditable ritual decode:
+- every match with its formula, source and rule
+- every miss
+- a Triple Prime Sync status
+- a control test
+- an Excel sheet
 
-It reads local files only. There are no network calls, no scoring, no picks and no automation.
+**[ZILLA_3_RULEBOOK.md](ZILLA_3_RULEBOOK.md) is the authority** on what counts as a valid match. The registry it describes is [`scriptmatria/registry/rules_v2.json`](scriptmatria/registry/rules_v2.json).
 
-> Alignments are mathematical observations, not predictions. No rule here has demonstrated predictive value; that belongs to a separate research process.
+> Alignments are mathematical observations, not predictions. No rule here has demonstrated predictive value; that belongs to a separate research process (Phase 2+).
 
 ## Install
 
@@ -21,119 +22,104 @@ python3 -m pip install -e ".[test]"   # Python 3.11+, no runtime dependencies
 ## Use
 
 ```bash
-scriptmatria decode examples/sample_decode.json --out decodes --print
+scriptmatria decode examples/mlb_career_hr.json --out decodes --print   # first reference case
 scriptmatria decode examples/sample_decodes.csv
-scriptmatria gematria "Sample Town Rockets"
+scriptmatria gematria "Mercury"
+scriptmatria grade mlb-fictional-player-a-hr23 --achieved yes --actual 23
 ```
 
-Each decode writes these files:
+`decode` writes these files to `decodes/`:
 
-- `decodes/<id>.md`: the decode grid, a finding sentence, dependent hits and the comparison ledger
-- `decodes/<id>.json`: the full audit record, with inputs, input SHA-256, registry version, every comparison and the classification
-- `decodes/grid.csv`: one row per test per decode, ready for Excel
+| File | What it is |
+| --- | --- |
+| `<id>.md` | Decode grid, decode status, finding, dependent and pending hits, comparison ledger |
+| `<id>.json` | Full audit: inputs and `input_sha256`, registry version, every comparison, classification, control test |
+| `<id>.vN.json/.md` | An amendment, written when inputs or rules change. Earlier versions are never overwritten. |
+| `freeze_ledger.jsonl` | Append-only log of every freeze, with timestamp and hashes |
+| `outcomes.jsonl` | Append-only grades from `scriptmatria grade`. These never touch a decode. |
+| `summary.csv`, `grid.csv`, `decodes.xlsx` | Spreadsheet views of the run. The xlsx has three sheets: Summary, Grid and Evidence. |
 
-Identical inputs always produce byte-identical output.
+Identical inputs and the same rule version always give byte-identical reports.
 
-### Example output (from the audit's illustration)
+## The 10-step workflow
+
+1. **Input lock:** inputs are validated and hashed. Missing data is never inferred.
+2. **Number generation:**
+   - birthday spans
+   - date card: DN1–DN5, DOY, days left, weekday and ruling planet
+   - five-cipher gematria (EO, FR, RO, RR, CH)
+   - primes
+3. **Relationship detection:** prime and reverse prime, PIGR-A and PIGR-B (independent), Type A, jersey, birthday, DN, and weekday and planet gematria.
+4. **Ritual overlay:**
+   - Skull & Bones and Jesuit keyword lanes
+   - moon phase (Meeus true phases, timezone- and time-aware)
+   - zodiac season tag
+5. **Validation:**
+   - Bare supplied numbers are *source pending* and don't count.
+   - Restated numbers are flagged as dependent.
+   - Triple Prime Sync needs 3 families on 3 numbers.
+6. **Control test:** the same sources are decoded against milestones M ± 10. The result is descriptive rarity.
+7. **Output:** grid, summary row and decode status.
+8. **Freeze:** reports are written once. Changes become amendments.
+9. **Grade:** outcomes go to a separate append-only ledger.
+10. **Learn:** the research engine is not part of this tool.
+
+## Reference case: MLB career home runs
+
+`examples/mlb_career_hr.json` describes Fictional Player A:
+- born 2000-06-01, wears jersey #23
+- playing on 2026-10-21
+- going for career HR #23
+- the opponent gematria, 83, is supplied without its phrase
 
 | Test | Finding | Result |
 | --- | --- | --- |
 | Prime milestone | 23 is the 9th prime | ✓ Exact |
-| Reverse prime | 23 → 32, not prime | No hit |
-| PIGR-B | 83 is the 23rd prime | ✓ Exact |
-| PIGR-A | no value equals 9 (index of 23); 2 values checked | No hit |
+| PIGR-B | 83 is the 23rd prime (needs its phrase and cipher) | Source pending |
 | Jersey | jersey = 23 = milestone 23 | ✓ Exact |
-| Birthday interval | Birthday not supplied | Unverified |
-| Triple Prime Sync | 2 prime hit(s) from 2 families … needs 3 families and 3 numbers | Not qualified |
+| Weekday | Wednesday · ruled by Mercury | Tag |
+| Weekday & planet gematria | planet 'Mercury' (CH) = 23 = milestone 23 | ✓ Exact |
+| Symbolic codes | DN2 = 41 and Mercury (RR) = 41, Skull and Bones numbers | ✓ Exact |
+| Triple Prime Sync | 1 verified prime hit from 1 family | Not qualified |
 
-With an event date, birthday and timezone (the `full-example` decode), the grid also shows:
-
-| Test | Finding | Result |
-| --- | --- | --- |
-| Weekday | Thursday | Tag |
-| Moon phase | Waxing Gibbous · age 12.0 d · full in 4 d, new in 18 d (America/New_York) | Tag |
-| Birth moon | Waning Gibbous · age 15.8 d · full in 28 d, new in 14 d (UTC) | Tag |
-| Zodiac | event in Libra season; player is Pisces | No hit |
+The decode status is **Partial, source verification required**. The three hits on 23 (prime milestone, jersey and Mercury CH) are listed as dependent: they are one number, not three confirmations.
 
 ## Input
 
-JSON is either `{"decodes": [...]}` or a list. Required fields are `id`, `player` and `milestone`. Anything missing is reported as **Unverified** and never inferred.
+JSON is either `{"decodes": [...]}` or a list. CSV uses the same column names, written as `phrases` = `entity:phrase|...` and `values` = `entity:label=value|...`.
 
 ```json
 {
-  "id": "full-example",
-  "player": "Example Athlete",
-  "stat_category": "points",
-  "current": 40,
-  "milestone": 41,
-  "birthday": "1998-03-14",
-  "jersey": 7,
-  "event_date": "2026-10-22",
+  "id": "mlb-fictional-player-a-hr23",
+  "player": "Fictional Player A",
+  "stat_category": "career HR",
+  "milestone_type": "cumulative",
+  "current": 22,
+  "milestone": 23,
+  "birthday": "2000-06-01",
+  "jersey": 23,
+  "event_date": "2026-10-21",
   "timezone": "America/New_York",
-  "team": "Example City Comets",
-  "opponent": "Sample Town Rockets",
-  "phrases": [{"entity": "opponent", "phrase": "Rockets"}, {"entity": "team", "phrase": "Comets"}],
-  "values":  [{"entity": "opponent", "label": "authorized value", "value": 83}]
+  "event_time": "19:05",
+  "opponent": "Hypothetical Opponent X",
+  "phrases": [{"entity": "opponent", "phrase": "Hypothetical Opponent X"}]
 }
 ```
 
-- `phrases` are run through all five ciphers. `values` are numbers you supply directly, and each needs a label saying where it came from.
-- `entity` is one of `opponent`, `team`, `player` or `event`. Only opponent sources count as Type A. Team, player and event sources are reported as self-referential.
-- `timezone` is optional (IANA name). It sets which calendar day the moon phase is judged on; without it, UTC is used.
-- CSV uses the same column names. Use `phrases` = `entity:phrase|entity:phrase` and `values` = `entity:label=value|...`.
-
-## What it computes
-
-| Engine | Values |
-| --- | --- |
-| Gematria | English Ordinal (EO), Full Reduction (FR), Reverse Ordinal (RO), Reverse Reduction (RR), Chaldean (CH) |
-| Primes | prime status, 1-based prime index, nth prime, reverse prime |
-| Birthday | total days, exact years/months/days (never negative), days since and until birthday, total weeks |
-| Calendar | DN1–DN5, day of year, days left, weekday |
-| Moon | phase name, exact principal-phase time, moon age, days to next full and new moon (event date, and birth date in UTC) |
-| Zodiac | tropical sun sign for the event date and the birthday |
-| Symbolic | Skull & Bones {149, 41, 76, 322}, Jesuit {144, 153, 72} |
-
-The rules and conventions live in [`scriptmatria/registry/rules_v1.json`](scriptmatria/registry/rules_v1.json):
-
-| Rule | Qualifies when |
-| --- | --- |
-| PRIME-M | milestone M is prime |
-| REVPRIME-M | reverse(M) is prime (palindromes excluded) |
-| PIGR-A | M is prime and prime_index(M) == G |
-| PIGR-B | G is prime and prime_index(G) == M |
-| TYPEA | opponent gematria/value == M |
-| GEM-SELF | team/player/event gematria/value == M |
-| JERSEY / BDAY / DN | jersey / a birthday span / a calendar code == M |
-| SYM | a value is in a locked symbolic set (reported separately and never counted as prime evidence) |
-| ZODIAC-SYNC | the event falls in the player's own sun-sign season (symbolic, never structural) |
-
-### Moon phase and zodiac conventions
-
-- **Moon phase** uses the true-phase algorithm from Jean Meeus, *Astronomical Algorithms* (2nd ed., ch. 49), which is accurate to about a minute. The tests check it against the book's worked example and against published 2024 phase times.
-  - A date is named New Moon, First Quarter, Full Moon or Last Quarter when that exact moment falls within the calendar day in the event timezone.
-  - Otherwise the date is Waxing Crescent, Waxing Gibbous, Waning Gibbous or Waning Crescent, depending on which principal phase came last.
-  - Moon age is measured at local noon.
-  - Moon phase is a descriptive tag and is never matched against the milestone.
-- **Zodiac** uses a fixed tropical date table: Aries 3/21, Taurus 4/20, Gemini 5/21, Cancer 6/21, Leo 7/23, Virgo 8/23, Libra 9/23, Scorpio 10/23, Sagittarius 11/22, Capricorn 12/22, Aquarius 1/20, Pisces 2/19. The Sun's real ingress shifts by about a day from year to year, so the table is the locked convention.
-
-**Prime Cluster** means 3 or more prime-related hits. **Triple Prime Sync** needs 3 or more prime-related hits drawn from at least 3 distinct source families and at least 3 distinct numbers.
-
-When several hits restate the same number, the report lists them under **Dependent hits**.
-
-## Not in v1 (possible later modules)
-
-- mirror, concat and SACB/EACB bridges
-- extended ciphers
-- point scoring
-- research and calibration lab: prospective grading and baselines
-- counterfactual (shuffle) controls
-- signal rarity analysis
-- rule-version simulator
-- Telegram and scheduled runs
+The rulebook (§2) gives the full field contract. Use `phrases` for opponent names whenever you can. Bare `values` stay *source pending*.
 
 ## Tests
 
 ```bash
 python3 -m pytest
 ```
+
+The suite contains the Phase 1 readiness checks (rulebook §10). These cover the math reference cases, independent PIGR, leap-year birthdays, duplicate handling, Triple Prime Sync qualification, byte-identical reproducibility, and a lock that fails if the rulebook and registry disagree.
+
+## Roadmap
+
+- **Phase 1** (this repo): rulebook, math engine, relationship detector, signal validator, decode report.
+- **Phase 2:** historical replay and counterfactual testing.
+- **Phase 3:** automation, dashboards and Telegram.
+
+Predictive scoring is deferred until prospective evidence justifies it.
