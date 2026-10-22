@@ -1,0 +1,32 @@
+{
+  "decodes": [
+    {
+      "id": "audit-example-23",
+      "player": "Hypothetical Player",
+      "stat_category": "career milestone",
+      "current": 22,
+      "milestone": 23,
+      "jersey": 23,
+      "values": [
+        {"entity": "opponent", "label": "authorized opponent gematria", "value": 83}
+      ]
+    },
+    {
+      "id": "full-example",
+      "player": "Example Athlete",
+      "stat_category": "points",
+      "current": 40,
+      "milestone": 41,
+      "birthday": "1998-03-14",
+      "jersey": 7,
+      "event_date": "2026-10-22",
+      "team": "Example City Comets",
+      "opponent": "Sample Town Rockets",
+      "phrases": [
+        {"entity": "opponent", "phrase": "Rockets"},
+        {"entity": "opponent", "phrase": "Sample Town Rockets"},
+        {"entity": "team", "phrase": "Comets"}
+      ]
+    }
+  ]
+}

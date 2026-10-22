@@ -1,0 +1,35 @@
+{
+  "registry_version": "1.0.0",
+  "mode": "TAG-ONLY",
+  "notes": "Every rule is deterministic. No rule carries predictive status; all are 'unvalidated' until a separate research process says otherwise.",
+  "conventions": {
+    "gematria": "Letters only, case-insensitive. Ciphers: EO (a=1..z=26), FR (EO digit-reduced), RO (a=26..z=1), RR (RO digit-reduced), CH (Chaldean).",
+    "prime_index": "1-based: 2 is the 1st prime, 23 is the 9th prime.",
+    "DN1": "month + day + century + two-digit year (10/22/2026 -> 10+22+20+26 = 78)",
+    "DN2": "month + day + each digit of the year (10+22+2+0+2+6 = 42)",
+    "DN3": "every digit of month, day and year (1+0+2+2+2+0+2+6 = 15)",
+    "DN4": "month + day + two-digit year (10+22+26 = 58)",
+    "DN5": "digits of month and day + two-digit year (1+0+2+2+26 = 31)",
+    "DOY": "day of the year, Jan 1 = 1",
+    "DAYS_LEFT": "days remaining in the year after the event date",
+    "birthday": "Exact spans from birth date to event date. Feb 29 birthdays are observed on Feb 28 in non-leap years. Spans are distinct anchors and never substituted for one another.",
+    "triple_prime_sync": "At least 3 prime-related hits drawn from at least 3 distinct source families AND at least 3 distinct source numbers."
+  },
+  "symbolic_sets": {
+    "Skull and Bones": [149, 41, 76, 322],
+    "Jesuit": [144, 153, 72]
+  },
+  "rules": {
+    "PRIME-M":    {"name": "Prime milestone",        "inputs": ["M"],    "qualification": "M is prime",                                   "family": "milestone",   "evidence_class": "structural", "prime_related": true,  "version": "1.0"},
+    "REVPRIME-M": {"name": "Reverse prime milestone","inputs": ["M"],    "qualification": "reverse(M) is prime and reverse(M) != M",      "family": "milestone",   "evidence_class": "structural", "prime_related": true,  "version": "1.0"},
+    "PIGR-A":     {"name": "Prime milestone to gematria index", "inputs": ["M", "G"], "qualification": "M is prime and prime_index(M) == G", "family": "source",      "evidence_class": "structural", "prime_related": true,  "version": "1.0"},
+    "PIGR-B":     {"name": "Gematria prime to milestone index", "inputs": ["M", "G"], "qualification": "G is prime and prime_index(G) == M", "family": "source",      "evidence_class": "structural", "prime_related": true,  "version": "1.0"},
+    "TYPEA":      {"name": "Opponent gematria sync", "inputs": ["M", "G"], "qualification": "opponent phrase/value G == M",                 "family": "opponent_gematria", "evidence_class": "structural", "prime_related": false, "version": "1.0"},
+    "GEM-SELF":   {"name": "Self-referential gematria sync", "inputs": ["M", "G"], "qualification": "team/player/event phrase/value G == M", "family": "source", "evidence_class": "structural", "prime_related": false, "version": "1.0"},
+    "JERSEY":     {"name": "Jersey sync",            "inputs": ["M", "J"], "qualification": "J == M",                                       "family": "jersey",      "evidence_class": "structural", "prime_related": false, "version": "1.0"},
+    "BDAY":       {"name": "Birthday span sync",     "inputs": ["M", "birthday", "event_date"], "qualification": "a labeled birthday span == M", "family": "birthday", "evidence_class": "structural", "prime_related": false, "version": "1.0"},
+    "DN":         {"name": "Date numerology sync",   "inputs": ["M", "event_date"], "qualification": "DN1-DN5, DOY or DAYS_LEFT == M",          "family": "calendar",    "evidence_class": "calendar",   "prime_related": false, "version": "1.0"},
+    "SYM":        {"name": "Symbolic code",          "inputs": ["M", "any source value"], "qualification": "value is in a locked symbolic set", "family": "symbolic",  "evidence_class": "symbolic",   "prime_related": false, "version": "1.0"}
+  },
+  "forbidden": ["PIGR-C digit-sum bridges", "creative transformations during a decode", "mirror/concat bridges (not in v1)"]
+}

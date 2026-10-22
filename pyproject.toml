@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scriptmatria"
+version = "0.1.0"
+description = "Lite, deterministic, TAG-ONLY ritual decoder (gematria, primes, date numerology)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[project.scripts]
+scriptmatria = "scriptmatria.cli:main"
+
+[tool.setuptools]
+packages = ["scriptmatria", "scriptmatria.registry"]
+
+[tool.setuptools.package-data]
+"scriptmatria.registry" = ["*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
