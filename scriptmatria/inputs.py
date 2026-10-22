@@ -9,6 +9,7 @@ import json
 from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 ENTITIES = ("opponent", "team", "player", "event")
 
@@ -40,6 +41,7 @@ class DecodeRequest:
     birthday: date | None = None
     jersey: int | None = None
     event_date: date | None = None
+    timezone: str | None = None
     team: str | None = None
     opponent: str | None = None
     phrases: tuple[Phrase, ...] = field(default_factory=tuple)
@@ -55,6 +57,7 @@ class DecodeRequest:
             "birthday": self.birthday.isoformat() if self.birthday else None,
             "jersey": self.jersey,
             "event_date": self.event_date.isoformat() if self.event_date else None,
+            "timezone": self.timezone,
             "team": self.team,
             "opponent": self.opponent,
             "phrases": [{"entity": p.entity, "phrase": p.phrase} for p in self.phrases],
@@ -85,6 +88,17 @@ def _int(raw, name, errors, required=False):
     if n < 0:
         errors.append(f"{name}: must not be negative")
     return n
+
+
+def _tz(raw, errors):
+    if raw in (None, ""):
+        return None
+    try:
+        ZoneInfo(str(raw))
+    except (ZoneInfoNotFoundError, ValueError):
+        errors.append(f"timezone: '{raw}' is not an IANA timezone (e.g. America/New_York)")
+        return None
+    return str(raw)
 
 
 def _entity(raw, where, errors):
@@ -129,6 +143,7 @@ def parse_request(raw: dict) -> DecodeRequest:
         birthday=_date(raw.get("birthday"), "birthday", errors),
         jersey=_int(raw.get("jersey"), "jersey", errors),
         event_date=_date(raw.get("event_date"), "event_date", errors),
+        timezone=_tz(raw.get("timezone"), errors),
         team=raw.get("team") or None,
         opponent=raw.get("opponent") or None,
         phrases=tuple(phrases),

@@ -7,10 +7,11 @@ import json
 from dataclasses import dataclass
 from importlib import resources
 
-from . import dates, gematria, primes
+from . import astro, dates, gematria, primes
 from .inputs import DecodeRequest
 
 GEMATRIA_FAMILY = {e: f"{e}_gematria" for e in ("opponent", "team", "player", "event")}
+_UNSET = object()
 
 
 def load_registry(name: str = "rules_v1.json") -> dict:
@@ -69,7 +70,7 @@ class _Recorder:
         self.records: list[dict] = []
 
     def add(self, rule_id: str, hit: bool, computation: str, source: Source | None = None,
-            family: str | None = None, value: int | None = None):
+            family: str | None = None, value=_UNSET):
         rule = self.rules[rule_id]
         self.records.append({
             "rule_id": rule_id,
@@ -80,7 +81,7 @@ class _Recorder:
             "label": source.label if source else f"milestone {self.milestone}",
             "cipher": source.cipher if source else None,
             "phrase": source.phrase if source else None,
-            "value": value if value is not None else (source.value if source else self.milestone),
+            "value": value if value is not _UNSET else (source.value if source else self.milestone),
             "milestone": self.milestone,
             "computation": computation,
             "evidence_class": rule["evidence_class"],
@@ -141,6 +142,13 @@ def evaluate(req: DecodeRequest, registry: dict) -> tuple[list[dict], dict[str, 
         rec.add("SYM", v in sym,
                 f"{label} = {v}, a {sym[v]} number" if v in sym else f"{label} = {v}, not in a symbolic set",
                 s, family="symbolic", value=v)
+
+    # Zodiac sync: the event falls in the player's own sun-sign season (symbolic).
+    if req.birthday and req.event_date:
+        born, event = astro.zodiac_sign(req.birthday), astro.zodiac_sign(req.event_date)
+        rec.add("ZODIAC-SYNC", born == event,
+                f"event in {event} season; player is {born}" + (" (own season)" if born == event else ""),
+                family="symbolic", value=None)
 
     return rec.records, unverified
 

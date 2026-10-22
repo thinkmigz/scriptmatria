@@ -32,6 +32,9 @@ def test_audit_example_grid():
         "Jersey": "✓ Exact",
         "Birthday interval": "Unverified",
         "Date numerology": "Unverified",
+        "Weekday": "Unverified",
+        "Moon phase": "Unverified",
+        "Zodiac": "Unverified",
         "Symbolic codes": "No hit",
         "Prime Cluster": "Not qualified",
         "Triple Prime Sync": "Not qualified",
@@ -120,10 +123,41 @@ def test_output_is_byte_identical_across_runs(tmp_path):
     for f in sorted(a.iterdir()):
         assert f.read_bytes() == (b / f.name).read_bytes()
     data = json.loads((a / "audit-example-23.json").read_text())
-    assert data["mode"] == "TAG-ONLY" and data["registry_version"] == "1.0.0"
+    assert data["mode"] == "TAG-ONLY" and data["registry_version"] == "1.1.0"
 
 
 def test_every_rule_used_is_registered():
     raw = json.loads((EXAMPLES / "sample_decode.json").read_text())["decodes"][1]
     recs, _ = rules.evaluate(inputs.parse_request(raw), REGISTRY)
     assert {r["rule_id"] for r in recs} <= set(REGISTRY["rules"])
+
+
+def test_zodiac_sync_is_symbolic_only():
+    raw = {"id": "x", "player": "P", "milestone": 23, "birthday": "1990-10-01", "event_date": "2026-10-10"}
+    res = _decode(raw)
+    assert _grid(res)["Zodiac"] == "✓ Exact"
+    families = res["classification"]["families"]
+    assert all("ZODIAC-SYNC" not in rules_ for rules_ in families.values())  # never structural
+    assert res["classification"]["symbolic_count"] == 1
+    assert "zodiac season" in res["finding"]
+
+
+def test_astronomy_tags_in_output():
+    raw = {"id": "x", "player": "P", "milestone": 5, "birthday": "1998-03-14",
+           "event_date": "2026-10-25", "timezone": "America/Los_Angeles"}
+    res = _decode(raw)
+    assert res["astronomy"]["event_moon"]["phase"] == "Full Moon"
+    assert res["astronomy"]["event_zodiac"] == "Scorpio" and res["astronomy"]["birth_zodiac"] == "Pisces"
+    assert _grid(res)["Moon phase"] == "Tag" and _grid(res)["Birth moon"] == "Tag"
+    assert _grid(res)["Zodiac"] == "No hit"
+
+
+def test_event_only_zodiac_is_a_tag():
+    res = _decode({"id": "x", "player": "P", "milestone": 5, "event_date": "2026-10-22"})
+    assert _grid(res)["Zodiac"] == "Tag"
+    assert not any(r["rule_id"] == "ZODIAC-SYNC" for r in res["records"])
+
+
+def test_bad_timezone_rejected():
+    with pytest.raises(inputs.InputError):
+        inputs.parse_request({"id": "x", "player": "P", "milestone": 3, "timezone": "Mars/Olympus"})

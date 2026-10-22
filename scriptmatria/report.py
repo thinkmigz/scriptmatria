@@ -9,17 +9,57 @@ import json
 import re
 from pathlib import Path
 
-from . import primes, rules, validator
+from . import astro, dates, primes, rules, validator
 from .inputs import DecodeRequest
 
 EXACT, NO_HIT, UNVERIFIED = "✓ Exact", "No hit", "Unverified"
 QUALIFIED, NOT_QUALIFIED = "✓ Qualified", "Not qualified"
+TAG = "Tag"
 
 ALIGNMENT_NAMES = {
     "PRIME-M": "prime milestone", "REVPRIME-M": "reverse prime", "PIGR-A": "PIGR-A",
     "PIGR-B": "PIGR-B", "TYPEA": "opponent Type A", "GEM-SELF": "self-referential gematria",
-    "JERSEY": "jersey", "BDAY": "birthday", "DN": "date numerology",
+    "JERSEY": "jersey", "BDAY": "birthday", "DN": "date numerology", "ZODIAC-SYNC": "zodiac season",
 }
+
+
+def astronomy(req: DecodeRequest) -> dict:
+    """Descriptive calendar tags. They are reported, never matched against the milestone."""
+    out = {}
+    if req.event_date:
+        out["event_weekday"] = dates.weekday(req.event_date)
+        out["event_moon"] = astro.moon_phase(req.event_date, req.timezone)
+        out["event_zodiac"] = astro.zodiac_sign(req.event_date)
+    if req.birthday:
+        out["birth_moon"] = astro.moon_phase(req.birthday)
+        out["birth_zodiac"] = astro.zodiac_sign(req.birthday)
+    return out
+
+
+def _moon_text(moon: dict) -> str:
+    when = f"exact {moon['principal_phase_utc']}" if moon["principal_phase_utc"] else (
+        f"full in {moon['days_to_full_moon']} d, new in {moon['days_to_new_moon']} d")
+    return f"{moon['phase']} · age {moon['moon_age_days']} d · {when} ({moon['timezone']})"
+
+
+def _astro_rows(astro_tags: dict, zodiac_records: list[dict]) -> list[dict]:
+    birth = ([{"test": "Birth moon", "finding": _moon_text(astro_tags["birth_moon"]), "result": TAG}]
+             if "birth_moon" in astro_tags else [])
+    if "event_moon" not in astro_tags:
+        missing = "Event date not supplied"
+        return [{"test": t, "finding": missing, "result": UNVERIFIED}
+                for t in ("Weekday", "Moon phase", "Zodiac")] + birth
+    rows = [
+        {"test": "Weekday", "finding": astro_tags["event_weekday"], "result": TAG},
+        {"test": "Moon phase", "finding": _moon_text(astro_tags["event_moon"]), "result": TAG},
+        *birth,
+    ]
+    if zodiac_records:
+        rows.append(_row("Zodiac", zodiac_records))
+    else:
+        rows.append({"test": "Zodiac", "finding": f"event in {astro_tags['event_zodiac']} season; "
+                                                  "birthday not supplied", "result": TAG})
+    return rows
 
 
 def _row(test, records, missing=None, none_text=None):
@@ -38,6 +78,7 @@ def decode(req: DecodeRequest, registry: dict) -> dict:
     records, unverified = rules.evaluate(req, registry)
     cls = validator.classify(records)
     m = req.milestone
+    astro_tags = astronomy(req)
     by = lambda rid: [r for r in records if r["rule_id"] == rid]  # noqa: E731
     any_sources = any(r["source_id"] != "milestone" for r in by("PIGR-B"))
     idx_m = primes.prime_index(m)
@@ -58,6 +99,7 @@ def decode(req: DecodeRequest, registry: dict) -> dict:
         _row("Jersey", by("JERSEY"), unverified.get("jersey")),
         _row("Birthday interval", by("BDAY"), unverified.get("birthday")),
         _row("Date numerology", by("DN"), unverified.get("calendar")),
+        *_astro_rows(astro_tags, by("ZODIAC-SYNC")),
         _row("Symbolic codes", by("SYM"), none_text="no locked symbolic numbers present"),
         {"test": "Prime Cluster", "finding": f"{cls['prime_hits']} prime-related hit(s)",
          "result": QUALIFIED if cls["prime_cluster"] else NOT_QUALIFIED},
@@ -83,6 +125,7 @@ def decode(req: DecodeRequest, registry: dict) -> dict:
         "input": req.to_dict(),
         "input_sha256": hashlib.sha256(canonical_input.encode("utf-8")).hexdigest(),
         "unverified": dict(sorted(unverified.items())),
+        "astronomy": astro_tags,
         "grid": grid,
         "finding": finding,
         "classification": cls,

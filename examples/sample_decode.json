@@ -20,6 +20,7 @@
       "birthday": "1998-03-14",
       "jersey": 7,
       "event_date": "2026-10-22",
+      "timezone": "America/New_York",
       "team": "Example City Comets",
       "opponent": "Sample Town Rockets",
       "phrases": [

@@ -11,7 +11,7 @@ def _prime_family(rec: dict) -> str:
 
 def classify(records: list[dict]) -> dict:
     hits = [r for r in records if r["hit"]]
-    structural = [r for r in hits if r["rule_id"] != "SYM"]
+    structural = [r for r in hits if r["evidence_class"] != "symbolic"]
     prime_hits = [r for r in hits if r["prime_related"]]
 
     families: dict[str, list[str]] = defaultdict(list)

@@ -1,5 +1,5 @@
 {
-  "registry_version": "1.0.0",
+  "registry_version": "1.1.0",
   "mode": "TAG-ONLY",
   "notes": "Every rule is deterministic. No rule carries predictive status; all are 'unvalidated' until a separate research process says otherwise.",
   "conventions": {
@@ -13,7 +13,10 @@
     "DOY": "day of the year, Jan 1 = 1",
     "DAYS_LEFT": "days remaining in the year after the event date",
     "birthday": "Exact spans from birth date to event date. Feb 29 birthdays are observed on Feb 28 in non-leap years. Spans are distinct anchors and never substituted for one another.",
-    "triple_prime_sync": "At least 3 prime-related hits drawn from at least 3 distinct source families AND at least 3 distinct source numbers."
+    "triple_prime_sync": "At least 3 prime-related hits drawn from at least 3 distinct source families AND at least 3 distinct source numbers.",
+    "moon_phase": "True phase instants from Meeus, Astronomical Algorithms (2nd ed., ch. 49), dT = 69 s; accurate to about a minute. A date takes a principal phase name (New Moon, First Quarter, Full Moon, Last Quarter) if that instant falls within the calendar day in the event timezone (UTC if none given); otherwise the intermediate name after the latest principal phase (Waxing Crescent, Waxing Gibbous, Waning Gibbous, Waning Crescent). Moon age is measured at local noon. Descriptive tag only: never compared with the milestone.",
+    "zodiac": "Tropical sun signs on a fixed date table: Aries 3/21, Taurus 4/20, Gemini 5/21, Cancer 6/21, Leo 7/23, Virgo 8/23, Libra 9/23, Scorpio 10/23, Sagittarius 11/22, Capricorn 12/22, Aquarius 1/20, Pisces 2/19 (each runs to the day before the next). Real ingress drifts about a day year to year; the table is the locked convention.",
+    "weekday": "Weekday of the event date. Descriptive tag only."
   },
   "symbolic_sets": {
     "Skull and Bones": [149, 41, 76, 322],
@@ -29,6 +32,7 @@
     "JERSEY":     {"name": "Jersey sync",            "inputs": ["M", "J"], "qualification": "J == M",                                       "family": "jersey",      "evidence_class": "structural", "prime_related": false, "version": "1.0"},
     "BDAY":       {"name": "Birthday span sync",     "inputs": ["M", "birthday", "event_date"], "qualification": "a labeled birthday span == M", "family": "birthday", "evidence_class": "structural", "prime_related": false, "version": "1.0"},
     "DN":         {"name": "Date numerology sync",   "inputs": ["M", "event_date"], "qualification": "DN1-DN5, DOY or DAYS_LEFT == M",          "family": "calendar",    "evidence_class": "calendar",   "prime_related": false, "version": "1.0"},
+    "ZODIAC-SYNC":{"name": "Zodiac season sync",    "inputs": ["birthday", "event_date"], "qualification": "event date falls in the player's own sun-sign season", "family": "symbolic", "evidence_class": "symbolic", "prime_related": false, "version": "1.0"},
     "SYM":        {"name": "Symbolic code",          "inputs": ["M", "any source value"], "qualification": "value is in a locked symbolic set", "family": "symbolic",  "evidence_class": "symbolic",   "prime_related": false, "version": "1.0"}
   },
   "forbidden": ["PIGR-C digit-sum bridges", "creative transformations during a decode", "mirror/concat bridges (not in v1)"]
