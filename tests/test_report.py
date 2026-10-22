@@ -136,8 +136,9 @@ def test_trial_stats_are_labeled(pilot):
     assert "H (trial)" in report.to_markdown(hits)
 
 
-def test_postseason_scope_is_labeled_trial():
-    post = decode(snapshot(stat_scope="postseason", current_count=3))
-    assert "trial scope" in post["decode_status"]
-    assert post["summary"]["Stat"] == "HR (postseason, approved, trial scope)"
-    assert "next postseason HR #4" in post["ritual_note"] and "(trial scope)" in post["ritual_note"]
+def test_combined_scope_is_labeled_trial():
+    comb = decode(snapshot(stat_scope="combined", current_count=25, regular_season_count=22, postseason_count=3))
+    assert "trial scope" in comb["decode_status"]
+    assert comb["summary"]["Stat"] == "HR (combined, approved, trial scope)"
+    assert "next combined HR #26" in comb["ritual_note"]
+    assert comb["input"]["regular_season_count"] == 22 and comb["input"]["postseason_count"] == 3

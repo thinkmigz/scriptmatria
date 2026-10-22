@@ -85,11 +85,19 @@ def test_same_player_multiple_stats_are_distinct_decodes(tmp_path):
     assert ids == [f"MLB-2026-10-21-FIXTURE-PA_FICTIONAL-A_{c}" for c in ("HR", "H", "RBI")]
 
 
-def test_postseason_scope_is_distinct():
+def test_combined_scope():
     from conftest import REGISTRY
     assert inputs.STAT_SCOPES == REGISTRY["stat_scopes"]
     assert SCHEMA["properties"]["stat_scope"]["enum"] == list(inputs.STAT_SCOPES)
     career = inputs.parse_request(snapshot())
-    post = inputs.parse_request(snapshot(stat_scope="postseason", current_count=3))
-    assert career.decode_id.endswith("_HR") and post.decode_id.endswith("_HR-postseason")
-    assert post.milestone_id == "HR:postseason:4"
+    comb = inputs.parse_request(snapshot(stat_scope="combined", current_count=25,
+                                         regular_season_count=22, postseason_count=3))
+    assert career.decode_id.endswith("_HR") and comb.decode_id.endswith("_HR-combined")
+    assert comb.milestone == 26 and comb.milestone_id == "HR:combined:26"
+    with pytest.raises(inputs.InputError, match="!= current_count 25"):
+        inputs.parse_request(snapshot(stat_scope="combined", current_count=25,
+                                      regular_season_count=22, postseason_count=4))
+    with pytest.raises(inputs.InputError, match="both required"):
+        inputs.parse_request(snapshot(stat_scope="combined", current_count=25, regular_season_count=25))
+    with pytest.raises(inputs.InputError, match="only used with stat_scope 'combined'"):
+        inputs.parse_request(snapshot(postseason_count=1))

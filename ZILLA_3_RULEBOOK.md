@@ -1,6 +1,6 @@
 # Zilla 3.0 Master Decoding Rulebook
 
-**Version:** v0.2 — merged draft · **Rule registry:** v3.3.0 (`scriptmatria/registry/rules_v3.json`) · **Mode:** TAG-ONLY
+**Version:** v0.2 — merged draft · **Rule registry:** v3.4.0 (`scriptmatria/registry/rules_v3.json`) · **Mode:** TAG-ONLY
 **Primary track:** individual athlete statistical milestones · **Pilot:** MLB career home runs
 
 > **Governance.** This is the player-milestone successor contract. It merges `ZILLA_3_MASTER_RULEBOOK_v0.1_DRAFT.md` (2026-10-21) with the §13 decisions approved on 2026-10-22, and replaces the repo's earlier v2 rulebook.
@@ -54,7 +54,7 @@ Conflicting rules fail closed: the engine emits `RULE_CONFLICT`, shows the alter
 **Required for a base decode:**
 - `event_id`, `event_date_local`, `timezone` (IANA), `league`
 - `player_id`, `player_name`, `team_id`, `opponent_id`
-- `stat_code`, `stat_scope` (`career` or `postseason`; see **Stat scopes** below)
+- `stat_code`, `stat_scope` (`career` or `combined`; see **Stat scopes** below)
 - `current_count`, `current_count_as_of`, `current_count_source`
 - `phrase_registry_version`, `operator_attestation`
 
@@ -84,10 +84,12 @@ Overlays are **off unless requested** (`moon`, `zodiac`, `keywords`). A missing 
 - **No silent edits:** a draft edited after fetching is refused unless the operator attests with `--allow-edits`, and that edit is written into the attestation.
 - **Stat definition:** for `mlb-statsapi`, career totals are **regular-season** career totals; postseason games are not included.
 
-**Stat scopes:** career (approved), postseason (trial).
+**Stat scopes:** career (approved), combined (trial).
 - `career` is the regular-season career total, the MLB official career line. Postseason games do not change it.
-- `postseason` is the career postseason total across all rounds and years, as of before the event. It changes after every postseason game, so **every game needs a fresh, attested snapshot**; a later game is never decoded with an earlier game's count.
-- A postseason decode's ID ends in `-postseason`, and its status reads `Partial: trial scope`.
+- `combined` is the career regular-season total **plus** the career postseason total (all rounds and years), as of before the event.
+  - The snapshot records both parts, `regular_season_count` and `postseason_count`, and they must sum to `current_count`, or the input lock fails.
+  - It changes after every postseason game, so **every game needs a fresh, attested snapshot**.
+- A combined decode's ID ends in `-combined`, and its status reads `Partial: trial scope`.
 
 **Pilot stats:** HR (approved), H (trial), RBI (trial). Any other `stat_code` fails the input lock. A trial-stat decode is labeled in the input summary, the summary row and the ritual note, and its decode status reads `Partial: trial stat`.
 
@@ -294,7 +296,7 @@ Old decodes keep the versions they were sealed under.
 | # | Item | Status |
 | --- | --- | --- |
 | 1 | Player-prop source policy | **Decided:** manual or approved adapter with operator sign-off (`mlb-statsapi@0.1.0`) |
-| 2 | Pilot stat | **Decided:** MLB career HR (approved); career H and RBI as **trial** stats (2026-10-22, World Series test); `postseason` scope added as **trial** (2026-10-22) |
+| 2 | Pilot stat | **Decided:** MLB career HR (approved); career H and RBI as **trial** stats (2026-10-22, World Series test); `combined` (regular season + postseason) scope added as **trial** (2026-10-22) |
 | 3 | Opponent phrase scope | **Decided:** city, nickname and city+nickname; no abbreviations |
 | 4 | Leap-day birthdays / lunar time source | **Decided:** Feb 29 pending (fail closed); moon needs the event start time (Meeus ch. 49) |
 | 5 | Triple Prime Sync independence rule | **Pending:** NOT_EVALUATED, to be added later |

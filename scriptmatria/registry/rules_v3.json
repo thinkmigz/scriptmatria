@@ -1,5 +1,5 @@
 {
-  "registry_version": "3.3.0",
+  "registry_version": "3.4.0",
   "rulebook_version": "0.2",
   "mode": "TAG-ONLY",
   "notes": "Player-milestone registry for the Zilla 3.0 pilot (MLB career HR). Merges ZILLA_3_MASTER_RULEBOOK_v0.1_DRAFT with the approved section 13 decisions of 2026-10-22. rules_v1.json and rules_v2.json are kept unchanged as history.",
@@ -16,7 +16,8 @@
     "The milestone is derived as current_count + 1; v0.1 implements career scope only.",
     "3.1.0: stat codes are registered. HR is the approved pilot stat; H and RBI are trial stats, labeled in every output.",
     "3.2.0: source policy is manual or an approved adapter with operator sign-off; mlb-statsapi@0.1.0 approved.",
-    "3.3.0: stat_scope 'postseason' (trial) = career postseason totals, all rounds and years, as of before the event; re-snapshotted before every game."
+    "3.3.0: stat_scope 'postseason' (trial) = career postseason totals, all rounds and years, as of before the event; re-snapshotted before every game.",
+    "3.4.0: replaced the unused 'postseason' scope with 'combined' (trial) = career regular season + career postseason, with both parts recorded and required to sum to current_count."
   ],
   "statuses": {
     "QUALIFIED_STRUCTURAL": "exact hit of a structural rule from a verified source",
@@ -64,7 +65,7 @@
     "control_test": "Research only: the same verified sources decoded against alternative milestones within +/- window of M.",
     "stat_scopes": {
       "career": "regular-season career totals (MLB official career line); postseason games do not change it",
-      "postseason": "career postseason totals across all rounds and years, as of before the event; changes after every postseason game, so each game needs a fresh snapshot"
+      "combined": "career regular season + career postseason (all rounds and years), as of before the event; regular_season_count and postseason_count are recorded and must sum to current_count; changes after every postseason game, so each game needs a fresh attested snapshot"
     }
   },
   "overlays": [
@@ -220,6 +221,6 @@
   },
   "stat_scopes": {
     "career": "approved",
-    "postseason": "trial"
+    "combined": "trial"
   }
 }

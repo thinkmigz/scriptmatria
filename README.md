@@ -144,9 +144,11 @@ scriptmatria decode inputs/ws2026_g1.json --out reports/ws2026_g1
 - **Reports:** each decode is `<event_id>_<player_id>_<stat_code>`, so one player can have HR, H and RBI decodes for the same game.
 - **Cloud sessions:** the environment's network policy must allow `statsapi.mlb.com`. Running on your own computer, for example in Cowork, needs nothing extra.
 
-## Stat scopes: career vs postseason
+## Stat scopes: career vs combined
 
 - `career`: regular-season career totals, the MLB official career line. World Series games don't change it.
-- `postseason` (**trial**): career postseason totals across all rounds and years, as of before the event. They change after every postseason game, so each game needs a **fresh snapshot**, attested before that game's first pitch.
+- `combined` (**trial**): career regular season **plus** career postseason, as of before the event.
+  - The snapshot must record `regular_season_count` and `postseason_count`, and they must add up to `current_count`.
+  - The total changes after every postseason game, so each game needs a fresh snapshot, attested before that game's first pitch.
 
-Postseason decode IDs end in `-postseason`, for example `MLB-2026-10-24-TB-MIL_turang-brice-668930_HR-postseason`. The MLB Stats API adapter only drafts `career` snapshots; postseason snapshots are entered manually and attested.
+Combined decode IDs end in `-combined`, for example `MLB-2026-10-23-TB-MIL_turang-brice-668930_HR-combined`. The MLB Stats API adapter only drafts `career` snapshots; combined snapshots are entered manually and attested.

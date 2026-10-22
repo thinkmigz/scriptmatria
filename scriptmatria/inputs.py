@@ -13,8 +13,8 @@ from pathlib import Path
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 INPUT_SCHEMA_VERSION = "0.1"
-STAT_SCOPES_IMPLEMENTED = ("career", "postseason")
-STAT_SCOPES = {"career": "approved", "postseason": "trial"}  # mirrors registry stat_scopes
+STAT_SCOPES_IMPLEMENTED = ("career", "combined")
+STAT_SCOPES = {"career": "approved", "combined": "trial"}  # mirrors registry stat_scopes
 STAT_CODES = {"HR": "approved", "H": "trial", "RBI": "trial"}  # mirrors registry pilot_stats
 APPROVED_ADAPTERS = ("mlb-statsapi@0.1.0",)  # mirrors registry approved_adapters
 OVERLAYS = ("moon", "zodiac", "keywords")
@@ -56,6 +56,8 @@ class DecodeRequest:
     jersey: int | None = None
     jersey_source: str | None = None
     jersey_effective_date: date | None = None
+    regular_season_count: int | None = None  # combined scope: the two parts of current_count
+    postseason_count: int | None = None
     event_start_local: time | None = None
     adapter: str | None = None
     overlays: tuple[str, ...] = ()
@@ -99,6 +101,8 @@ class DecodeRequest:
             "jersey": self.jersey,
             "jersey_source": self.jersey_source,
             "jersey_effective_date": iso(self.jersey_effective_date),
+            "regular_season_count": self.regular_season_count,
+            "postseason_count": self.postseason_count,
             "event_start_local": self.event_start_local.strftime("%H:%M") if self.event_start_local else None,
             "adapter": self.adapter,
             "overlays": list(self.overlays),
@@ -203,6 +207,16 @@ def parse_request(raw: dict) -> DecodeRequest:
 
     birth = _date(raw, "birth_date", errors)
     jersey_eff = _date(raw, "jersey_effective_date", errors)
+    rs_count = _int(raw, "regular_season_count", errors)
+    ps_count = _int(raw, "postseason_count", errors)
+    if t["stat_scope"] == "combined":
+        if rs_count is None or ps_count is None:
+            errors.append("combined scope: regular_season_count and postseason_count are both required")
+        elif current is not None and rs_count + ps_count != current:
+            errors.append(f"combined scope: regular_season_count {rs_count} + postseason_count {ps_count} "
+                          f"!= current_count {current}")
+    elif rs_count is not None or ps_count is not None:
+        errors.append("regular_season_count/postseason_count are only used with stat_scope 'combined'")
     # Contradictions fail the input lock rather than being silently resolved.
     if event_date:
         if birth and birth > event_date:
@@ -226,6 +240,7 @@ def parse_request(raw: dict) -> DecodeRequest:
         birth_date=birth, birth_date_source=_text(raw, "birth_date_source", errors),
         jersey=jersey, jersey_source=_text(raw, "jersey_source", errors),
         jersey_effective_date=jersey_eff, event_start_local=start, adapter=adapter,
+        regular_season_count=rs_count, postseason_count=ps_count,
         overlays=tuple(sorted(set(overlays))), requested_phrases=tuple(requested),
     )
 

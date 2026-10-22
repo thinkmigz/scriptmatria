@@ -68,9 +68,9 @@
       "type": "string",
       "enum": [
         "career",
-        "postseason"
+        "combined"
       ],
-      "description": "career = regular-season career totals; postseason = career postseason totals (trial), re-snapshotted before every game"
+      "description": "career = regular-season career totals; combined = regular season + postseason career totals (trial), re-snapshotted before every game"
     },
     "current_count": {
       "type": "integer",
@@ -113,6 +113,16 @@
       "type": "string",
       "format": "date",
       "description": "Not after the event date"
+    },
+    "regular_season_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "combined scope only: career regular-season part"
+    },
+    "postseason_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "combined scope only: career postseason part; regular_season_count + postseason_count must equal current_count"
     },
     "event_start_local": {
       "type": "string",
