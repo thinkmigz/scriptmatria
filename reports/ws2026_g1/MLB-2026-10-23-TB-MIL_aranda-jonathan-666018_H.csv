@@ -1,0 +1,14 @@
+Decode ID,Rule,LHS,RHS,Derivation,Status,Source
+MLB-2026-10-23-TB-MIL_aranda-jonathan-666018_H,M-PRIME,milestone M=342,milestone M=342,342 is not prime,NO_HIT,milestone
+MLB-2026-10-23-TB-MIL_aranda-jonathan-666018_H,M-REVPRIME,milestone M=342,milestone M=342,"reverse_digits(342) = 243, not prime",NO_HIT,milestone
+MLB-2026-10-23-TB-MIL_aranda-jonathan-666018_H,PIGR-A,milestone M=342,milestone M=342,342 is not prime; PIGR-A not applicable,NO_HIT,source
+MLB-2026-10-23-TB-MIL_aranda-jonathan-666018_H,PIGR-B,milestone M=342,55 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_aranda-jonathan-666018_H,OPP-TYPEA,milestone M=342,15 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_aranda-jonathan-666018_H,SELF-TYPEA,milestone M=342,15 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_aranda-jonathan-666018_H,BIRTH-SPAN-EXACT,milestone M=342,7 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_aranda-jonathan-666018_H,DN-EXACT,milestone M=342,7 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_aranda-jonathan-666018_H,DAY-GEM,milestone M=342,5 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_aranda-jonathan-666018_H,PLANET-GEM,milestone M=342,5 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_aranda-jonathan-666018_H,JERSEY-EXACT,milestone M=342,jersey #8,jersey #8 = 8 ≠ 342,NO_HIT,jersey
+MLB-2026-10-23-TB-MIL_aranda-jonathan-666018_H,KW-EXACT,milestone M=342,birthday days_since_birthday,"birthday days_since_birthday = 153, Jesuit code",SYMBOLIC_NOTE,birthday:days_since_birthday
+MLB-2026-10-23-TB-MIL_aranda-jonathan-666018_H,KW-EXACT,milestone M=342,55 other value(s),no exact match,NO_HIT,ledger

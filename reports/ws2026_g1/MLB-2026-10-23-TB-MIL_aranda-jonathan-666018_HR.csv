@@ -1,0 +1,15 @@
+Decode ID,Rule,LHS,RHS,Derivation,Status,Source
+MLB-2026-10-23-TB-MIL_aranda-jonathan-666018_HR,M-PRIME,milestone M=47,milestone M=47,47 is the 15th prime,QUALIFIED_STRUCTURAL,milestone
+MLB-2026-10-23-TB-MIL_aranda-jonathan-666018_HR,M-REVPRIME,milestone M=47,milestone M=47,"reverse_digits(47) = 74, not prime",NO_HIT,milestone
+MLB-2026-10-23-TB-MIL_aranda-jonathan-666018_HR,PIGR-A,milestone M=47,55 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_aranda-jonathan-666018_HR,PIGR-B,milestone M=47,55 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_aranda-jonathan-666018_HR,OPP-TYPEA,milestone M=47,15 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_aranda-jonathan-666018_HR,SELF-TYPEA,milestone M=47,team 'Tampa Bay' (RR),team 'Tampa Bay' (RR) = 47 = M,QUALIFIED_STRUCTURAL,team:TB:city:RR
+MLB-2026-10-23-TB-MIL_aranda-jonathan-666018_HR,SELF-TYPEA,milestone M=47,14 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_aranda-jonathan-666018_HR,BIRTH-SPAN-EXACT,milestone M=47,7 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_aranda-jonathan-666018_HR,DN-EXACT,milestone M=47,7 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_aranda-jonathan-666018_HR,DAY-GEM,milestone M=47,5 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_aranda-jonathan-666018_HR,PLANET-GEM,milestone M=47,5 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_aranda-jonathan-666018_HR,JERSEY-EXACT,milestone M=47,jersey #8,jersey #8 = 8 ≠ 47,NO_HIT,jersey
+MLB-2026-10-23-TB-MIL_aranda-jonathan-666018_HR,KW-EXACT,milestone M=47,birthday days_since_birthday,"birthday days_since_birthday = 153, Jesuit code",SYMBOLIC_NOTE,birthday:days_since_birthday
+MLB-2026-10-23-TB-MIL_aranda-jonathan-666018_HR,KW-EXACT,milestone M=47,55 other value(s),no exact match,NO_HIT,ledger

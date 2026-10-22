@@ -1,0 +1,14 @@
+Decode ID,Rule,LHS,RHS,Derivation,Status,Source
+MLB-2026-10-23-TB-MIL_diaz-yandy-650490_H,M-PRIME,milestone M=1138,milestone M=1138,1138 is not prime,NO_HIT,milestone
+MLB-2026-10-23-TB-MIL_diaz-yandy-650490_H,M-REVPRIME,milestone M=1138,milestone M=1138,"reverse_digits(1138) = 8311, prime",QUALIFIED_STRUCTURAL,milestone
+MLB-2026-10-23-TB-MIL_diaz-yandy-650490_H,PIGR-A,milestone M=1138,milestone M=1138,1138 is not prime; PIGR-A not applicable,NO_HIT,source
+MLB-2026-10-23-TB-MIL_diaz-yandy-650490_H,PIGR-B,milestone M=1138,55 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_diaz-yandy-650490_H,OPP-TYPEA,milestone M=1138,15 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_diaz-yandy-650490_H,SELF-TYPEA,milestone M=1138,15 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_diaz-yandy-650490_H,BIRTH-SPAN-EXACT,milestone M=1138,7 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_diaz-yandy-650490_H,DN-EXACT,milestone M=1138,7 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_diaz-yandy-650490_H,DAY-GEM,milestone M=1138,5 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_diaz-yandy-650490_H,PLANET-GEM,milestone M=1138,5 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_diaz-yandy-650490_H,JERSEY-EXACT,milestone M=1138,jersey #2,jersey #2 = 2 ≠ 1138,NO_HIT,jersey
+MLB-2026-10-23-TB-MIL_diaz-yandy-650490_H,KW-EXACT,milestone M=1138,birthday days_since_birthday,"birthday days_since_birthday = 76, Skull and Bones code",SYMBOLIC_NOTE,birthday:days_since_birthday
+MLB-2026-10-23-TB-MIL_diaz-yandy-650490_H,KW-EXACT,milestone M=1138,55 other value(s),no exact match,NO_HIT,ledger

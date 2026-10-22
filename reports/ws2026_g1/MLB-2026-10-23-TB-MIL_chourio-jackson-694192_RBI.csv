@@ -1,0 +1,13 @@
+Decode ID,Rule,LHS,RHS,Derivation,Status,Source
+MLB-2026-10-23-TB-MIL_chourio-jackson-694192_RBI,M-PRIME,milestone M=233,milestone M=233,233 is the 51st prime,QUALIFIED_STRUCTURAL,milestone
+MLB-2026-10-23-TB-MIL_chourio-jackson-694192_RBI,M-REVPRIME,milestone M=233,milestone M=233,"reverse_digits(233) = 332, not prime",NO_HIT,milestone
+MLB-2026-10-23-TB-MIL_chourio-jackson-694192_RBI,PIGR-A,milestone M=233,55 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_chourio-jackson-694192_RBI,PIGR-B,milestone M=233,55 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_chourio-jackson-694192_RBI,OPP-TYPEA,milestone M=233,15 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_chourio-jackson-694192_RBI,SELF-TYPEA,milestone M=233,15 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_chourio-jackson-694192_RBI,BIRTH-SPAN-EXACT,milestone M=233,7 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_chourio-jackson-694192_RBI,DN-EXACT,milestone M=233,7 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_chourio-jackson-694192_RBI,DAY-GEM,milestone M=233,5 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_chourio-jackson-694192_RBI,PLANET-GEM,milestone M=233,5 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_chourio-jackson-694192_RBI,JERSEY-EXACT,milestone M=233,jersey #11,jersey #11 = 11 ≠ 233,NO_HIT,jersey
+MLB-2026-10-23-TB-MIL_chourio-jackson-694192_RBI,KW-EXACT,milestone M=233,56 other value(s),no exact match,NO_HIT,ledger

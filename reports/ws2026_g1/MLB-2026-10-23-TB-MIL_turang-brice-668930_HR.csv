@@ -1,0 +1,15 @@
+Decode ID,Rule,LHS,RHS,Derivation,Status,Source
+MLB-2026-10-23-TB-MIL_turang-brice-668930_HR,M-PRIME,milestone M=53,milestone M=53,53 is the 16th prime,QUALIFIED_STRUCTURAL,milestone
+MLB-2026-10-23-TB-MIL_turang-brice-668930_HR,M-REVPRIME,milestone M=53,milestone M=53,"reverse_digits(53) = 35, not prime",NO_HIT,milestone
+MLB-2026-10-23-TB-MIL_turang-brice-668930_HR,PIGR-A,milestone M=53,2026-10-23 DN3,prime_index(53) = 16; 2026-10-23 DN3 = 16,QUALIFIED_STRUCTURAL,calendar:DN3
+MLB-2026-10-23-TB-MIL_turang-brice-668930_HR,PIGR-A,milestone M=53,54 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_turang-brice-668930_HR,PIGR-B,milestone M=53,55 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_turang-brice-668930_HR,OPP-TYPEA,milestone M=53,15 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_turang-brice-668930_HR,SELF-TYPEA,milestone M=53,team 'Milwaukee' (RR),team 'Milwaukee' (RR) = 53 = M,QUALIFIED_STRUCTURAL,team:MIL:city:RR
+MLB-2026-10-23-TB-MIL_turang-brice-668930_HR,SELF-TYPEA,milestone M=53,14 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_turang-brice-668930_HR,BIRTH-SPAN-EXACT,milestone M=53,7 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_turang-brice-668930_HR,DN-EXACT,milestone M=53,7 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_turang-brice-668930_HR,DAY-GEM,milestone M=53,5 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_turang-brice-668930_HR,PLANET-GEM,milestone M=53,5 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_turang-brice-668930_HR,JERSEY-EXACT,milestone M=53,jersey #2,jersey #2 = 2 ≠ 53,NO_HIT,jersey
+MLB-2026-10-23-TB-MIL_turang-brice-668930_HR,KW-EXACT,milestone M=53,56 other value(s),no exact match,NO_HIT,ledger

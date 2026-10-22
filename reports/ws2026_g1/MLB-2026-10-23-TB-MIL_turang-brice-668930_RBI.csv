@@ -1,0 +1,13 @@
+Decode ID,Rule,LHS,RHS,Derivation,Status,Source
+MLB-2026-10-23-TB-MIL_turang-brice-668930_RBI,M-PRIME,milestone M=273,milestone M=273,273 is not prime,NO_HIT,milestone
+MLB-2026-10-23-TB-MIL_turang-brice-668930_RBI,M-REVPRIME,milestone M=273,milestone M=273,"reverse_digits(273) = 372, not prime",NO_HIT,milestone
+MLB-2026-10-23-TB-MIL_turang-brice-668930_RBI,PIGR-A,milestone M=273,milestone M=273,273 is not prime; PIGR-A not applicable,NO_HIT,source
+MLB-2026-10-23-TB-MIL_turang-brice-668930_RBI,PIGR-B,milestone M=273,55 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_turang-brice-668930_RBI,OPP-TYPEA,milestone M=273,15 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_turang-brice-668930_RBI,SELF-TYPEA,milestone M=273,15 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_turang-brice-668930_RBI,BIRTH-SPAN-EXACT,milestone M=273,7 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_turang-brice-668930_RBI,DN-EXACT,milestone M=273,7 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_turang-brice-668930_RBI,DAY-GEM,milestone M=273,5 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_turang-brice-668930_RBI,PLANET-GEM,milestone M=273,5 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_turang-brice-668930_RBI,JERSEY-EXACT,milestone M=273,jersey #2,jersey #2 = 2 ≠ 273,NO_HIT,jersey
+MLB-2026-10-23-TB-MIL_turang-brice-668930_RBI,KW-EXACT,milestone M=273,56 other value(s),no exact match,NO_HIT,ledger

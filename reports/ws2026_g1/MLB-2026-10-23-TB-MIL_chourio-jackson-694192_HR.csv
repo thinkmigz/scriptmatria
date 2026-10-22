@@ -1,0 +1,13 @@
+Decode ID,Rule,LHS,RHS,Derivation,Status,Source
+MLB-2026-10-23-TB-MIL_chourio-jackson-694192_HR,M-PRIME,milestone M=68,milestone M=68,68 is not prime,NO_HIT,milestone
+MLB-2026-10-23-TB-MIL_chourio-jackson-694192_HR,M-REVPRIME,milestone M=68,milestone M=68,"reverse_digits(68) = 86, not prime",NO_HIT,milestone
+MLB-2026-10-23-TB-MIL_chourio-jackson-694192_HR,PIGR-A,milestone M=68,milestone M=68,68 is not prime; PIGR-A not applicable,NO_HIT,source
+MLB-2026-10-23-TB-MIL_chourio-jackson-694192_HR,PIGR-B,milestone M=68,55 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_chourio-jackson-694192_HR,OPP-TYPEA,milestone M=68,15 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_chourio-jackson-694192_HR,SELF-TYPEA,milestone M=68,15 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_chourio-jackson-694192_HR,BIRTH-SPAN-EXACT,milestone M=68,7 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_chourio-jackson-694192_HR,DN-EXACT,milestone M=68,7 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_chourio-jackson-694192_HR,DAY-GEM,milestone M=68,5 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_chourio-jackson-694192_HR,PLANET-GEM,milestone M=68,5 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_chourio-jackson-694192_HR,JERSEY-EXACT,milestone M=68,jersey #11,jersey #11 = 11 ≠ 68,NO_HIT,jersey
+MLB-2026-10-23-TB-MIL_chourio-jackson-694192_HR,KW-EXACT,milestone M=68,56 other value(s),no exact match,NO_HIT,ledger

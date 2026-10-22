@@ -1,0 +1,13 @@
+Decode ID,Rule,LHS,RHS,Derivation,Status,Source
+MLB-2026-10-23-TB-MIL_bauers-jake-641343_HR,M-PRIME,milestone M=85,milestone M=85,85 is not prime,NO_HIT,milestone
+MLB-2026-10-23-TB-MIL_bauers-jake-641343_HR,M-REVPRIME,milestone M=85,milestone M=85,"reverse_digits(85) = 58, not prime",NO_HIT,milestone
+MLB-2026-10-23-TB-MIL_bauers-jake-641343_HR,PIGR-A,milestone M=85,milestone M=85,85 is not prime; PIGR-A not applicable,NO_HIT,source
+MLB-2026-10-23-TB-MIL_bauers-jake-641343_HR,PIGR-B,milestone M=85,55 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_bauers-jake-641343_HR,OPP-TYPEA,milestone M=85,15 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_bauers-jake-641343_HR,SELF-TYPEA,milestone M=85,15 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_bauers-jake-641343_HR,BIRTH-SPAN-EXACT,milestone M=85,7 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_bauers-jake-641343_HR,DN-EXACT,milestone M=85,7 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_bauers-jake-641343_HR,DAY-GEM,milestone M=85,5 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_bauers-jake-641343_HR,PLANET-GEM,milestone M=85,5 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_bauers-jake-641343_HR,JERSEY-EXACT,milestone M=85,jersey #9,jersey #9 = 9 ≠ 85,NO_HIT,jersey
+MLB-2026-10-23-TB-MIL_bauers-jake-641343_HR,KW-EXACT,milestone M=85,56 other value(s),no exact match,NO_HIT,ledger

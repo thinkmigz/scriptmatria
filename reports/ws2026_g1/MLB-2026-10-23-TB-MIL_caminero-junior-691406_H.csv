@@ -1,0 +1,13 @@
+Decode ID,Rule,LHS,RHS,Derivation,Status,Source
+MLB-2026-10-23-TB-MIL_caminero-junior-691406_H,M-PRIME,milestone M=379,milestone M=379,379 is the 75th prime,QUALIFIED_STRUCTURAL,milestone
+MLB-2026-10-23-TB-MIL_caminero-junior-691406_H,M-REVPRIME,milestone M=379,milestone M=379,"reverse_digits(379) = 973, not prime",NO_HIT,milestone
+MLB-2026-10-23-TB-MIL_caminero-junior-691406_H,PIGR-A,milestone M=379,55 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_caminero-junior-691406_H,PIGR-B,milestone M=379,55 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_caminero-junior-691406_H,OPP-TYPEA,milestone M=379,15 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_caminero-junior-691406_H,SELF-TYPEA,milestone M=379,15 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_caminero-junior-691406_H,BIRTH-SPAN-EXACT,milestone M=379,7 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_caminero-junior-691406_H,DN-EXACT,milestone M=379,7 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_caminero-junior-691406_H,DAY-GEM,milestone M=379,5 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_caminero-junior-691406_H,PLANET-GEM,milestone M=379,5 other value(s),no exact match,NO_HIT,ledger
+MLB-2026-10-23-TB-MIL_caminero-junior-691406_H,JERSEY-EXACT,milestone M=379,jersey #13,jersey #13 = 13 ≠ 379,NO_HIT,jersey
+MLB-2026-10-23-TB-MIL_caminero-junior-691406_H,KW-EXACT,milestone M=379,56 other value(s),no exact match,NO_HIT,ledger
